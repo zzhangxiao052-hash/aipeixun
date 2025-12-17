@@ -1,0 +1,1037 @@
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { 
+  ThumbsUp, Bookmark, Share2, MoreHorizontal, 
+  Play, Pause, Volume2, Maximize, Settings, 
+  MessageSquare, Send, X, Plus, Hammer, ExternalLink, MessageCircle 
+} from 'lucide-react';
+import BookmarkModal from '../components/BookmarkModal';
+
+// Mock Data
+const VIDEO_INFO = {
+  id: 201,
+  title: 'DeepSeek 深度解析：国产大模型应用实战',
+  views: '12.5w',
+  date: '2023-12-10',
+  desc: '本课程深入解析 DeepSeek 大模型的架构与应用场景，重点讲解在公文写作、数据分析中的实战技巧。',
+  chapters: [
+    { time: 10, label: '1. 模型架构简介' },
+    { time: 35, label: '2. 提示词工程基础' },
+    { time: 65, label: '3. 实战：公文生成' },
+    { time: 65, label: '3. 实战：公文生成' },
+    { time: 85, label: '4. 常见问题解答' }
+  ],
+  stats: { likes: 154, bookmarks: 32, shares: 20 }
+};
+
+const RELATED_VIDEOS = [
+  { id: 1, title: 'Prompt 提示词进阶指南', cover: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?w=400&q=80', views: '8.2w' },
+  { id: 2, title: 'AI 绘图工具对比评测', cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80', views: '5.1w' },
+  { id: 3, title: '数字化办公效率提升', cover: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80', views: '3.3w' },
+];
+
+export default function VideoDetail() {
+  const [searchParams] = useSearchParams();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0); // In seconds
+  const [showToast, setShowToast] = useState(false);
+  const [showBookmarkModal, setShowBookmarkModal] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [stats, setStats] = useState(VIDEO_INFO.stats);
+  
+  // 简化的收藏状态管理 - 直接操作 localStorage
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  
+  // 检查是否已收藏
+  useEffect(() => {
+    const checkBookmark = () => {
+      try {
+        const data = localStorage.getItem('user_assets');
+        if (data) {
+          const bookmarks = JSON.parse(data);
+          const exists = bookmarks.some(b => String(b.videoId) === String(VIDEO_INFO.id));
+          setIsBookmarked(exists);
+        }
+      } catch (error) {
+        console.error('检查收藏状态失败:', error);
+      }
+    };
+    checkBookmark();
+  }, []);
+  
+  // 删除收藏的函数
+  const handleRemoveBookmark = () => {
+    try {
+      console.log('开始删除收藏, videoId:', VIDEO_INFO.id);
+      
+      // 读取当前数据
+      const data = localStorage.getItem('user_assets');
+      if (!data) {
+        console.log('没有收藏数据');
+        return;
+      }
+      
+      const bookmarks = JSON.parse(data);
+      console.log('删除前数量:', bookmarks.length);
+      
+      // 过滤掉当前视频的所有收藏(包括重复的)
+      const updated = bookmarks.filter(b => String(b.videoId) !== String(VIDEO_INFO.id));
+      console.log('删除后数量:', updated.length);
+      console.log('删除了', bookmarks.length - updated.length, '个收藏');
+      
+      // 保存
+      localStorage.setItem('user_assets', JSON.stringify(updated));
+      
+      // 立即更新状态
+      setIsBookmarked(false);
+      
+      alert('删除成功!');
+      
+    } catch (error) {
+      console.error('删除失败:', error);
+      alert('删除失败: ' + error.message);
+    }
+  };
+  
+  const [activeTab, setActiveTab] = useState('目录'); // Default to Directory initially
+  const [taskTriggered, setTaskTriggered] = useState(false);
+  const [completedTasks, setCompletedTasks] = useState(new Set()); // 跟踪已完成的任务
+  const [isDragging, setIsDragging] = useState(false);
+  const progressBarRef = useRef(null);
+  
+  // Constants
+  const TASK_TRIGGER_TIME = 740; // 12:20
+  const TOTAL_DURATION = 2720; // 45:20
+
+  const togglePlay = () => setIsPlaying(!isPlaying);
+
+  // Unified Task Trigger Logic
+  useEffect(() => {
+    if (currentTime >= TASK_TRIGGER_TIME && !taskTriggered) {
+      setTaskTriggered(true);
+      // Optional: Auto-switch tab or just show notification
+      // setActiveTab('实战任务'); 
+    }
+  }, [currentTime, taskTriggered]);
+
+  // 同步收藏状态到统计数据
+  useEffect(() => {
+    setStats(prev => ({
+      ...prev,
+      bookmarks: VIDEO_INFO.stats.bookmarks + (isBookmarked ? 1 : 0)
+    }));
+  }, [isBookmarked]);
+
+  // Keyboard Controls
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Avoid interfering with input fields
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      switch(e.code) {
+        case 'Space':
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          setCurrentTime(t => Math.max(0, t - 5));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          setCurrentTime(t => Math.min(TOTAL_DURATION, t + 5));
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPlaying]);
+
+  // Progress Bar Dragging Logic
+  const handleSeek = (clientX) => {
+    if (!progressBarRef.current) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const width = rect.width;
+    const percentage = Math.max(0, Math.min(1, x / width));
+    const newTime = Math.round(percentage * TOTAL_DURATION);
+    setCurrentTime(newTime);
+  };
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    handleSeek(e.clientX);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDragging) {
+        handleSeek(e.clientX);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  // Handle URL query param for seeking
+  useEffect(() => {
+    const t = searchParams.get('t');
+    const completed = searchParams.get('completed'); // 检测是否完成了任务
+    
+    if (completed) {
+      // 标记任务为已完成
+      setCompletedTasks(prev => new Set(prev).add(completed));
+    }
+    
+    if (t) {
+      const seekTime = parseInt(t, 10);
+      if (!isNaN(seekTime)) {
+        setCurrentTime(seekTime);
+        setIsPlaying(true);
+        // Trigger logic is now handled by the unified useEffect above
+      }
+    }
+  }, [searchParams]);
+
+  // Simulate Video Progress
+  useEffect(() => {
+    let interval;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentTime(prev => {
+          const nextTime = prev + 1;
+          return nextTime >= TOTAL_DURATION ? TOTAL_DURATION : nextTime;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  // Heartbeat: Save progress every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentTime > 0) {
+        localStorage.setItem(`video_progress_${VIDEO_INFO.id}`, currentTime.toString());
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentTime]);
+
+  // Resume Toast
+  useEffect(() => {
+    if (searchParams.get('resumed') === 'true') {
+      setShowToast(true);
+      // Auto hide after 5 seconds
+      setTimeout(() => setShowToast(false), 5000);
+    } else {
+       // Original demo toast logic
+       const timer = setTimeout(() => {
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 5000);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+        
+        {/* --- Left Column: Player & Content --- */}
+        <div className="space-y-6">
+          
+          {/* 1. Video Player Container */}
+          <div 
+            className="relative w-full aspect-video bg-black rounded-xl overflow-hidden group shadow-lg cursor-pointer"
+            onClick={togglePlay}
+          >
+            {/* Placeholder Video Background */}
+            <img 
+              src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+              className="w-full h-full object-cover opacity-80"
+              alt="Video Content"
+            />
+            
+            {/* Dynamic Toast Notification */}
+            {showToast && (
+              <div className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-black/60 backdrop-blur-md text-white p-3 rounded-lg border-l-4 border-yellow-500 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-500 flex items-start gap-3 z-20">
+                <div className="text-yellow-400 mt-0.5">⚠️</div>
+                <div>
+                  <div className="font-bold text-sm text-yellow-400">注意</div>
+                  <div className="text-xs text-gray-200">
+                    {searchParams.get('resumed') === 'true' 
+                      ? "已为您恢复至上次进度 (自动回退 5s)" 
+                      : "模型已更新至 V4.0，部分参数可能与视频演示不同。"}
+                  </div>
+                </div>
+                <button onClick={(e) => { e.stopPropagation(); setShowToast(false); }} className="ml-auto text-gray-400 hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Play Button Overlay (Center) */}
+            {!isPlaying && (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setIsPlaying(true); }}
+                  className="w-16 h-16 bg-blue-600/90 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-110 backdrop-blur-sm"
+                >
+                  <Play className="w-8 h-8 ml-1" fill="currentColor" />
+                </button>
+              </div>
+            )}
+
+            {/* Controls Bar (Bottom) */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-4 pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              
+              {/* Progress Bar with Micro-Course Indexing */}
+              <div 
+                ref={progressBarRef}
+                className="relative w-full h-1.5 bg-gray-600/50 rounded-full mb-4 cursor-pointer group/progress hover:h-2.5 transition-all py-2 -my-2 bg-clip-content"
+                onMouseDown={handleMouseDown}
+              >
+                {/* Background Track */}
+                <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 bg-gray-600/50 rounded-full group-hover/progress:h-2.5 transition-all pointer-events-none"></div>
+
+                {/* Current Progress */}
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 bg-blue-500 rounded-full group-hover/progress:h-2.5 transition-all duration-75 pointer-events-none" 
+                  style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }}
+                >
+                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow scale-0 group-hover/progress:scale-100 transition-transform"></div>
+                </div>
+                
+                {/* Chapter Dots */}
+                {VIDEO_INFO.chapters.map((chapter, idx) => (
+                  <div 
+                    key={idx}
+                    className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full -ml-0.5 hover:scale-150 transition-transform z-10 pointer-events-none"
+                    style={{ left: `${chapter.time}%` }}
+                  >
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/80 text-white text-xs rounded whitespace-nowrap opacity-0 hover:opacity-100 transition-opacity">
+                      {chapter.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Control Icons */}
+              <div className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-4">
+                  <button onClick={togglePlay}>
+                    {isPlaying ? <Pause className="w-5 h-5" fill="currentColor" /> : <Play className="w-5 h-5" fill="currentColor" />}
+                  </button>
+                  <span className="text-xs font-medium">{formatTime(currentTime)} / {formatTime(TOTAL_DURATION)}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button><Volume2 className="w-5 h-5" /></button>
+                  <button><Settings className="w-5 h-5" /></button>
+                  <button><Maximize className="w-5 h-5" /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Video Info & Actions */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">{VIDEO_INFO.title}</h1>
+            <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+              <div className="flex gap-4">
+                <span>{VIDEO_INFO.views} 播放</span>
+                <span>{VIDEO_INFO.date}</span>
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex items-center gap-2 border-t border-b border-gray-100 py-3">
+              <ActionButton 
+                icon={ThumbsUp} 
+                label={isLiked ? "已点赞" : "点赞"} 
+                count={stats.likes}
+                active={isLiked} 
+                onClick={() => {
+                  const newIsLiked = !isLiked;
+                  setIsLiked(newIsLiked);
+                  setStats(prev => ({
+                    ...prev,
+                    likes: newIsLiked ? prev.likes + 1 : prev.likes - 1
+                  }));
+                }} 
+              />
+              <ActionButton 
+                icon={Bookmark} 
+                label={isBookmarked ? "已收藏" : "收藏"} 
+                count={stats.bookmarks}
+                active={isBookmarked} 
+                onClick={(e) => {
+                  console.log('🔥 收藏按钮被点击!', { isBookmarked });
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  if (isBookmarked) {
+                    console.log('  → 直接删除收藏(无确认)');
+                    handleRemoveBookmark();
+                  } else {
+                    console.log('  → 打开收藏弹窗');
+                    setShowBookmarkModal(true);
+                  }
+                }}  
+              />
+              <ActionButton icon={Share2} label="分享" count={stats.shares} />
+              <div className="flex-1"></div>
+              <button className="text-gray-400 hover:text-gray-600">
+                <MoreHorizontal className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 text-gray-700 leading-relaxed">
+              {VIDEO_INFO.desc}
+            </div>
+          </div>
+
+          {/* 3. Comments Section */}
+          {/* 3. Comments Section */}
+          <CommentSection currentTime={currentTime} setCurrentTime={setCurrentTime} onBookmark={() => setShowBookmarkModal(true)} />
+        </div>
+
+        {/* --- Right Column: Sidebar --- */}
+        <div className="space-y-4">
+          {/* Author Card */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">T</div>
+              <div>
+                <div className="font-bold text-gray-800 text-sm">技术部培训中心</div>
+                <div className="text-xs text-gray-500">官方认证 · 128 个视频</div>
+              </div>
+            </div>
+            <button className="w-full py-2 bg-blue-50 text-blue-700 font-bold rounded-lg hover:bg-blue-100 transition-colors text-sm">
+              + 关注
+            </button>
+          </div>
+
+          {/* Interactive Sidebar Tabs */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[420px]">
+             {/* Tab Header */}
+             <div className="flex items-center border-b border-gray-100">
+                {['目录', '实战任务', 'AI 工具'].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 py-2.5 text-sm font-bold transition-all relative
+                      ${activeTab === tab ? 'text-blue-700 bg-blue-50/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}
+                    `}
+                  >
+                    {tab}
+                    {/* Active Indicator */}
+                    {activeTab === tab && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-700 mx-auto w-8 rounded-full"></div>
+                    )}
+                    {/* Notification Dot for Tasks - 只在任务未完成时显示 */}
+                    {tab === '实战任务' && taskTriggered && !completedTasks.has('task_740') && (
+                      <span className="absolute top-2 right-4 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    )}
+                    
+                    {/* Bubble Tip for Task Trigger - 只在任务未完成时显示 */}
+                    {tab === '实战任务' && taskTriggered && activeTab !== '实战任务' && !completedTasks.has('task_740') && (
+                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-blue-600 text-white text-xs p-2 rounded-lg shadow-xl z-50 animate-bounce">
+                         <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45"></div>
+                         检测到实操任务：生成一份纪要初稿
+                       </div>
+                    )}
+                  </button>
+                ))}
+             </div>
+
+             {/* Tab Content */}
+             <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+               
+               {/* Tab 1: Directory */}
+               {activeTab === '目录' && (
+                 <div className="space-y-1">
+                   {VIDEO_INFO.chapters.map((chapter, idx) => (
+                     <div 
+                       key={idx} 
+                       className={`p-2.5 rounded-lg cursor-pointer flex items-center gap-2 transition-colors
+                         ${idx === 1 ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'}
+                       `}
+                     >
+                       <div className="text-xs font-mono opacity-60 w-6">{String(idx + 1).padStart(2, '0')}</div>
+                       <div className="flex-1 text-sm font-medium line-clamp-1">{chapter.label.split('. ')[1]}</div>
+                       <div className="text-xs opacity-60">
+                         {Math.floor(chapter.time / 60)}:{(chapter.time % 60).toString().padStart(2, '0')}
+                       </div>
+                       {idx === 1 && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>}
+                     </div>
+                   ))}
+                 </div>
+               )}
+
+               {/* Tab 2: Tasks (High Priority) */}
+               {activeTab === '实战任务' && (
+                 <div className="space-y-3">
+                   {taskTriggered && !completedTasks.has('task_740') ? (
+                     <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 animate-in slide-in-from-right-4 duration-500">
+                       <div className="flex items-start justify-between mb-2">
+                         <div className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">当前任务</div>
+                         <span className="text-xs text-blue-400 font-mono">12:20</span>
+                       </div>
+                       <h4 className="font-bold text-gray-800 text-sm mb-1">生成会议纪要初稿</h4>
+                       <p className="text-xs text-gray-500 mb-3">请根据视频中提到的要点，使用 AI 工具生成一份完整的会议纪要。</p>
+                       <Link 
+                         to="/workshop"
+                         className="w-full py-2 border border-blue-600 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 group"
+                       >
+                         <Hammer className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                         去实战
+                       </Link>
+                     </div>
+                   ) : taskTriggered && completedTasks.has('task_740') ? (
+                     <div className="p-3 bg-green-50 rounded-xl border border-green-100">
+                       <div className="flex items-start justify-between mb-2">
+                         <div className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">已完成</div>
+                         <span className="text-xs text-green-400 font-mono">12:20</span>
+                       </div>
+                       <h4 className="font-bold text-gray-800 text-sm mb-1">生成会议纪要初稿 ✓</h4>
+                       <p className="text-xs text-gray-500">您已完成此任务，继续观看视频解锁更多任务。</p>
+                     </div>
+                   ) : (
+                     <div className="p-6 text-center text-gray-400">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Hammer className="w-5 h-5 opacity-50" />
+                        </div>
+                        <p className="text-xs">观看视频以解锁实战任务</p>
+                     </div>
+                   )}
+
+                   <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 opacity-60">
+                     <div className="flex items-start justify-between mb-2">
+                       <div className="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">待解锁</div>
+                       <span className="text-xs text-gray-400 font-mono">12:45</span>
+                     </div>
+                     <h4 className="font-bold text-gray-700 text-sm mb-1">优化提示词逻辑</h4>
+                     <p className="text-xs text-gray-400">学习如何通过链式思考 (CoT) 优化输出结果。</p>
+                   </div>
+                 </div>
+               )}
+
+               {/* Tab 3: AI Tools */}
+               {activeTab === 'AI 工具' && (
+                 <div className="space-y-2">
+                   {[
+                     { name: 'DeepSeek Chat', icon: 'https://www.deepseek.com/favicon.ico', desc: '国产开源大模型，擅长中文语境' },
+                     { name: 'Kimi 智能助手', icon: 'https://kimi.moonshot.cn/favicon.ico', desc: '支持超长上下文输入' },
+                     { name: 'ChatGPT-4o', icon: 'https://openai.com/favicon.ico', desc: 'OpenAI 最新多模态模型' }
+                   ].map((tool, idx) => (
+                     <div key={idx} className="flex items-center gap-2 p-2.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer group">
+                       <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+                          {/* Fallback icon if image fails (using first letter) */}
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm">
+                            {tool.name[0]}
+                          </div>
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h4 className="text-sm font-bold text-gray-800 group-hover:text-blue-700 transition-colors truncate">{tool.name}</h4>
+                         <p className="text-xs text-gray-500 line-clamp-1">{tool.desc}</p>
+                       </div>
+                       <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-blue-400 flex-shrink-0" />
+                     </div>
+                   ))}
+                 </div>
+               )}
+
+             </div>
+          </div>
+
+          {/* Recommended Videos */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <h3 className="font-bold text-sm text-gray-800">推荐视频</h3>
+            </div>
+            <div className="p-3 space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar">
+              {RELATED_VIDEOS.map((video) => (
+                <Link 
+                  key={video.id} 
+                  to={`/video?id=${video.id}`}
+                  className="flex gap-3 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                >
+                  <div className="relative w-40 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <img 
+                      src={video.cover} 
+                      alt={video.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                      12:30
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 line-clamp-2 mb-1 transition-colors">
+                      {video.title}
+                    </h4>
+                    <div className="text-xs text-gray-500 space-y-0.5">
+                      <div>技术部培训中心</div>
+                      <div>{video.views} 播放 · 2天前</div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* --- Bookmark Modal --- */}
+      {showBookmarkModal && (
+        <BookmarkModal 
+          onClose={() => setShowBookmarkModal(false)} 
+          videoInfo={VIDEO_INFO}
+          onConfirm={() => {
+            // 关闭弹窗
+            setShowBookmarkModal(false);
+            // 重新检查收藏状态
+            setTimeout(() => {
+              const data = localStorage.getItem('user_assets');
+              if (data) {
+                const bookmarks = JSON.parse(data);
+                const exists = bookmarks.some(b => String(b.videoId) === String(VIDEO_INFO.id));
+                setIsBookmarked(exists);
+              }
+            }, 100);
+          }}
+        />
+      )}
+
+    </div>
+  );
+}
+
+function ActionButton({ icon: Icon, label, count, active, onClick }) {
+  const handleClick = (e) => {
+    console.log('⚡ ActionButton 内部点击', { label, active });
+    if (onClick) {
+      onClick(e);
+    }
+  };
+  
+  return (
+    <button 
+      type="button"
+      onClick={handleClick}
+      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200
+        ${active 
+          ? 'text-blue-600 bg-blue-50 font-bold' 
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
+      `}
+    >
+      <Icon className={`w-5 h-5 ${active ? 'fill-current' : ''}`} />
+      <span className="text-sm">{label} {count !== undefined && count}</span>
+    </button>
+  );
+}
+
+function CommentSection({ currentTime, setCurrentTime, onBookmark }) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [includeTimestamp, setIncludeTimestamp] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('全部');
+  const [commentText, setCommentText] = useState('');
+  const [likedComments, setLikedComments] = useState(new Set()); // 跟踪已点赞的评论
+  const [likedReplies, setLikedReplies] = useState(new Set()); // 跟踪已点赞的回复
+  const [replyingTo, setReplyingTo] = useState(null); // 当前正在回复的评论ID
+  const [replyingToReply, setReplyingToReply] = useState(null); // 当前正在回复的回复ID
+  const [replyText, setReplyText] = useState(''); // 回复内容
+  const [replies, setReplies] = useState({}); // 存储每个评论的回复列表 { commentId: [replies] }
+  
+  const [comments, setComments] = useState([
+    { id: 1, user: 'User_1', time: '2小时前', content: '这门课程非常有帮助，特别是关于 Prompt 优化的部分，解决了我很多实际工作中的困惑！期待更新更多高阶内容。', likes: 12, tag: '心得', timestamp: '09:30' },
+    { id: 2, user: 'Dev_Mike', time: '5小时前', content: '请问这个模型在本地部署需要多少显存？', likes: 5, tag: '提问', timestamp: null },
+    { id: 3, user: 'AI_Fan', time: '1天前', content: '第3章的参数设置好像有点问题，建议核对一下。', likes: 8, tag: '纠错', timestamp: '15:20' },
+  ]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // 处理点赞
+  const handleLike = (commentId) => {
+    const isLiked = likedComments.has(commentId);
+    
+    // 更新点赞状态
+    const newLikedComments = new Set(likedComments);
+    if (isLiked) {
+      newLikedComments.delete(commentId);
+    } else {
+      newLikedComments.add(commentId);
+    }
+    setLikedComments(newLikedComments);
+    
+    // 更新评论点赞数
+    setComments(prev => 
+      prev.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, likes: comment.likes + (isLiked ? -1 : 1) }
+          : comment
+      )
+    );
+  };
+
+  // 处理回复
+  const handleReply = (commentId) => {
+    setReplyingTo(commentId);
+    setReplyingToReply(null);
+    setReplyText('');
+  };
+
+  // 处理回复的回复
+  const handleReplyToReply = (commentId, replyId, replyUser) => {
+    setReplyingTo(commentId);
+    setReplyingToReply(replyId);
+    setReplyText(`@${replyUser} `);
+  };
+
+  // 提交回复
+  const handleSubmitReply = (commentId) => {
+    if (!replyText.trim()) return;
+    
+    const newReply = {
+      id: Date.now(),
+      user: 'Me',
+      time: '刚刚',
+      content: replyText,
+      likes: 0,
+      replyToUser: replyingToReply ? replies[commentId]?.find(r => r.id === replyingToReply)?.user : null
+    };
+    
+    setReplies(prev => ({
+      ...prev,
+      [commentId]: [...(prev[commentId] || []), newReply]
+    }));
+    
+    setReplyText('');
+    setReplyingTo(null);
+    setReplyingToReply(null);
+  };
+
+  // 取消回复
+  const handleCancelReply = () => {
+    setReplyingTo(null);
+    setReplyingToReply(null);
+    setReplyText('');
+  };
+
+  // 处理回复点赞
+  const handleLikeReply = (replyId, commentId) => {
+    const isLiked = likedReplies.has(replyId);
+    
+    // 更新点赞状态
+    const newLikedReplies = new Set(likedReplies);
+    if (isLiked) {
+      newLikedReplies.delete(replyId);
+    } else {
+      newLikedReplies.add(replyId);
+    }
+    setLikedReplies(newLikedReplies);
+    
+    // 更新回复点赞数
+    setReplies(prev => ({
+      ...prev,
+      [commentId]: prev[commentId].map(reply =>
+        reply.id === replyId
+          ? { ...reply, likes: reply.likes + (isLiked ? -1 : 1) }
+          : reply
+      )
+    }));
+  };
+
+  const handlePostComment = () => {
+    if (!commentText.trim()) return;
+    
+    // 从评论文本中提取标签（以 # 开头的词）
+    const tagMatch = commentText.match(/#(\S+)/);
+    const extractedTag = tagMatch ? tagMatch[1] : null;
+    
+    // 如果提取到标签，从评论内容中移除它
+    const contentWithoutTag = extractedTag 
+      ? commentText.replace(`#${extractedTag}`, '').trim()
+      : commentText;
+    
+    // 确定标签：优先使用提取的标签，否则使用默认值
+    let finalTag = '心得'; // Default
+    if (extractedTag) {
+      finalTag = extractedTag;
+    }
+    
+    const newComment = {
+      id: Date.now(),
+      user: 'Me',
+      time: '刚刚',
+      content: contentWithoutTag,
+      likes: 0,
+      tag: finalTag,
+      timestamp: includeTimestamp ? formatTime(currentTime) : null
+    };
+    
+    setComments([newComment, ...comments]);
+    setCommentText('');
+    setIncludeTimestamp(false);
+    
+    // 如果当前筛选器不是"全部"且不匹配新评论的标签，切换到"全部"
+    if (activeFilter !== '全部' && activeFilter !== finalTag) {
+      setActiveFilter('全部');
+    }
+  };
+
+  const filteredComments = activeFilter === '全部' 
+    ? comments 
+    : comments.filter(c => c.tag === activeFilter);
+
+  // 动态生成标签列表：从所有评论中提取唯一的标签
+  const uniqueTags = ['全部', ...new Set(comments.map(c => c.tag).filter(Boolean))];
+
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+          <MessageSquare className="w-5 h-5" /> 评论 ({comments.length})
+        </h3>
+        
+        {/* Filter Tags */}
+        <div className="flex gap-2 flex-wrap">
+          {uniqueTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => setActiveFilter(tag)}
+              className={`px-3 py-1 text-xs rounded-full transition-colors
+                ${activeFilter === tag 
+                  ? 'bg-gray-800 text-white font-bold' 
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}
+              `}
+            >
+              {tag === '全部' ? '全部' : `#${tag}`}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Input Area */}
+      <div className="flex gap-4 mb-8">
+        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0">U</div>
+        <div className="flex-1 relative group">
+          <textarea 
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            onFocus={() => {
+              setIsFocused(true);
+              setIncludeTimestamp(true); // Auto-check on focus
+            }}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+            placeholder="发一条友善的评论..." 
+            className={`w-full bg-gray-50 border rounded-xl p-3 min-h-[80px] focus:outline-none focus:bg-white transition-all resize-none text-sm
+              ${isFocused ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-gray-200'}
+            `}
+          ></textarea>
+          
+          {/* Bottom Actions (Visible on Focus) */}
+          <div className={`absolute bottom-3 left-3 right-3 flex items-center justify-between transition-opacity duration-200 ${isFocused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-500 hover:text-blue-600 select-none">
+              <input 
+                type="checkbox" 
+                checked={includeTimestamp}
+                onChange={(e) => setIncludeTimestamp(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span>引用当前时间 ({formatTime(currentTime)})</span>
+            </label>
+            
+            <button 
+              onClick={handlePostComment}
+              className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+            >
+              发布
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Comment List */}
+      <div className="space-y-6">
+        {filteredComments.map((comment) => (
+          <div key={comment.id} className="flex gap-4 group">
+            {/* Minimalist Avatar */}
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-xs text-gray-500 font-bold">
+              {comment.user[0]}
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold text-gray-800 text-sm">{comment.user}</span>
+                <span className="text-xs text-gray-400">{comment.time}</span>
+                {comment.tag && (
+                  <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded font-medium">#{comment.tag}</span>
+                )}
+              </div>
+              
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {comment.timestamp && (
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // 将时间戳 "MM:SS" 转换为秒数
+                      const [minutes, seconds] = comment.timestamp.split(':').map(Number);
+                      const timeInSeconds = minutes * 60 + seconds;
+                      setCurrentTime(timeInSeconds);
+                    }}
+                    className="text-blue-600 hover:underline font-medium mr-1 inline-flex items-center gap-0.5"
+                  >
+                    <Play className="w-3 h-3" fill="currentColor" />
+                    {comment.timestamp}
+                  </button>
+                )}
+                {comment.content}
+              </p>
+              
+              <div className="flex items-center gap-4 mt-2">
+                <button 
+                  onClick={() => handleLike(comment.id)}
+                  className={`flex items-center gap-1 text-xs transition-colors
+                    ${likedComments.has(comment.id) 
+                      ? 'text-blue-600 font-medium' 
+                      : 'text-gray-400 hover:text-blue-600'}
+                  `}
+                >
+                  <ThumbsUp 
+                    className={`w-3.5 h-3.5 ${likedComments.has(comment.id) ? 'fill-current' : ''}`} 
+                  />
+                  {comment.likes}
+                </button>
+                <button 
+                  onClick={() => handleReply(comment.id)}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" /> 回复
+                </button>
+                <button 
+                  onClick={onBookmark}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                >
+                  <Bookmark className="w-3.5 h-3.5" /> 收藏
+                </button>
+              </div>
+
+              {/* 回复输入框 */}
+              {replyingTo === comment.id && (
+                <div className="mt-3 ml-8 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      U
+                    </div>
+                    <div className="flex-1">
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder={`回复 @${comment.user}...`}
+                        className="w-full bg-gray-50 border border-blue-300 rounded-lg p-2 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 resize-none"
+                        rows="2"
+                        autoFocus
+                      />
+                      <div className="flex items-center justify-end gap-2 mt-2">
+                        <button
+                          onClick={handleCancelReply}
+                          className="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          取消
+                        </button>
+                        <button
+                          onClick={() => handleSubmitReply(comment.id)}
+                          disabled={!replyText.trim()}
+                          className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          回复
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 回复列表 */}
+              {replies[comment.id] && replies[comment.id].length > 0 && (
+                <div className="mt-3 ml-8 space-y-3">
+                  {replies[comment.id].map((reply) => (
+                    <div key={reply.id} className="flex gap-2 p-2 bg-gray-50 rounded-lg group">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-xs text-gray-500 font-bold">
+                        {reply.user[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-bold text-gray-800 text-xs">{reply.user}</span>
+                          <span className="text-xs text-gray-400">{reply.time}</span>
+                          {reply.replyToUser && (
+                            <>
+                              <span className="text-xs text-gray-400">回复</span>
+                              <span className="text-xs text-blue-600 font-medium">@{reply.replyToUser}</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-700 leading-relaxed mb-2">{reply.content}</p>
+                        
+                        {/* 回复的操作按钮 */}
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleLikeReply(reply.id, comment.id)}
+                            className={`flex items-center gap-1 text-xs transition-colors
+                              ${likedReplies.has(reply.id)
+                                ? 'text-blue-600 font-medium'
+                                : 'text-gray-400 hover:text-blue-600'}
+                            `}
+                          >
+                            <ThumbsUp 
+                              className={`w-3 h-3 ${likedReplies.has(reply.id) ? 'fill-current' : ''}`}
+                            />
+                            {reply.likes > 0 && reply.likes}
+                          </button>
+                          <button
+                            onClick={() => handleReplyToReply(comment.id, reply.id, reply.user)}
+                            className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" /> 回复
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

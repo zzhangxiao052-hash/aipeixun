@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收藏功能测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2563eb;
+      margin-top: 0;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button.danger {
+      background: #dc2626;
+    }
+    button.danger:hover {
+      background: #b91c1c;
+    }
+    .output {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .bookmark-item {
+      background: #f3f4f6;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .success {
+      color: #059669;
+      font-weight: bold;
+    }
+    .error {
+      color: #dc2626;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔖 收藏功能测试工具</h1>
+  
+  <div class="test-section">
+    <h2>1. 查看当前收藏</h2>
+    <button onclick="viewBookmarks()">刷新收藏列表</button>
+    <button onclick="clearAll()" class="danger">清空所有收藏</button>
+    <div id="bookmarks-output" class="output">点击"刷新收藏列表"查看数据</div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. 添加测试收藏</h2>
+    <button onclick="addTestBookmark()">添加测试视频收藏</button>
+    <div id="add-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. 删除收藏测试</h2>
+    <button onclick="deleteByVideoId()">通过 videoId 删除(视频201)</button>
+    <button onclick="deleteById()">通过 id 删除第一个</button>
+    <div id="delete-output" class="output"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. 数据清洗测试</h2>
+    <button onclick="addDirtyData()">添加脏数据(无videoId)</button>
+    <button onclick="testCleanup()">测试自动清洗</button>
+    <div id="cleanup-output" class="output"></div>
+  </div>
+
+  <script>
+    // 模拟 useBookmarks Hook 的清洗逻辑
+    function cleanupBookmarks(bookmarks) {
+      return bookmarks
+        .filter(item => item.videoId || item.title)
+        .map(item => {
+          if (!item.videoId && item.title) {
+            const hashId = `legacy_${item.title.split('').reduce((acc, char) => {
+              return ((acc << 5) - acc) + char.charCodeAt(0);
+            }, 0)}`;
+            item.videoId = hashId;
+          }
+          
+          if (item.videoId !== undefined && item.videoId !== null) {
+            item.videoId = String(item.videoId);
+          }
+          
+          if (!item.id) {
+            item.id = item.videoId || Date.now();
+          }
+          
+          item.id = String(item.id);
+          
+          return item;
+        });
+    }
+
+    function loadBookmarks() {
+      try {
+        const raw = localStorage.getItem('user_assets');
+        const bookmarks = raw ? JSON.parse(raw) : [];
+        const cleaned = cleanupBookmarks(bookmarks);
+        
+        if (JSON.stringify(bookmarks) !== JSON.stringify(cleaned)) {
+          localStorage.setItem('user_assets', JSON.stringify(cleaned));
+          console.log('✅ 数据已自动清洗');
+        }
+        
+        return cleaned;
+      } catch (error) {
+        console.error('Failed to load bookmarks:', error);
+        return [];
+      }
+    }
+
+    function saveBookmarks(bookmarks) {
+      try {
+        const cleaned = cleanupBookmarks(bookmarks);
+        localStorage.setItem('user_assets', JSON.stringify(cleaned));
+        window.dispatchEvent(new Event('storage'));
+        return cleaned;
+      } catch (error) {
+        console.error('Failed to save bookmarks:', error);
+        return bookmarks;
+      }
+    }
+
+    function viewBookmarks() {
+      const bookmarks = loadBookmarks();
+      const output = document.getElementById('bookmarks-output');
+      
+      if (bookmarks.length === 0) {
+        output.innerHTML = '<p class="error">暂无收藏</p>';
+        return;
+      }
+      
+      let html = `<p class="success">共 ${bookmarks.length} 个收藏:</p>`;
+      bookmarks.forEach((b, index) => {
+        html += `
+          <div class="bookmark-item">
+            <div>
+              <strong>${index + 1}. ${b.title || '无标题'}</strong><br>
+              <small>id: ${b.id} | videoId: ${b.videoId} | folder: ${b.folder || '默认'}</small>
+            </div>
+          </div>
+        `;
+      });
+      
+      output.innerHTML = html;
+    }
+
+    function addTestBookmark() {
+      const bookmarks = loadBookmarks();
+      const newBookmark = {
+        id: Date.now(),
+        videoId: '201',
+        title: 'DeepSeek 深度解析:国产大模型应用实战',
+        content: '本课程深入解析 DeepSeek 大模型的架构与应用场景',
+        tags: ['大模型', '写作', '效率'],
+        date: new Date().toISOString().split('T')[0],
+        folder: '我的技巧库 (默认)',
+        type: 'video_bookmark'
+      };
+      
+      const updated = [newBookmark, ...bookmarks];
+      saveBookmarks(updated);
+      
+      const output = document.getElementById('add-output');
+      output.innerHTML = `<p class="success">✅ 添加成功! ID: ${newBookmark.id}</p>`;
+      
+      viewBookmarks();
+    }
+
+    function deleteByVideoId() {
+      const bookmarks = loadBookmarks();
+      const targetVideoId = '201';
+      const updated = bookmarks.filter(b => String(b.videoId) !== targetVideoId);
+      
+      saveBookmarks(updated);
+      
+      const output = document.getElementById('delete-output');
+      const deleted = bookmarks.length - updated.length;
+      output.innerHTML = `<p class="success">✅ 通过 videoId 删除了 ${deleted} 个收藏</p>`;
+      
+      viewBookmarks();
+    }
+
+    function deleteById() {
+      const bookmarks = loadBookmarks();
+      if (bookmarks.length === 0) {
+        const output = document.getElementById('delete-output');
+        output.innerHTML = '<p class="error">❌ 没有可删除的收藏</p>';
+        return;
+      }
+      
+      const firstId = bookmarks[0].id;
+      const updated = bookmarks.filter(b => String(b.id) !== String(firstId));
+      
+      saveBookmarks(updated);
+      
+      const output = document.getElementById('delete-output');
+      output.innerHTML = `<p class="success">✅ 删除了 ID 为 ${firstId} 的收藏</p>`;
+      
+      viewBookmarks();
+    }
+
+    function addDirtyData() {
+      const bookmarks = loadBookmarks();
+      const dirtyData = {
+        id: Date.now(),
+        // 故意不添加 videoId
+        title: '旧版本收藏数据(无videoId)',
+        content: '这是一条旧版本的数据',
+        tags: ['测试'],
+        date: '2023-01-01'
+      };
+      
+      const updated = [dirtyData, ...bookmarks];
+      localStorage.setItem('user_assets', JSON.stringify(updated));
+      
+      const output = document.getElementById('cleanup-output');
+      output.innerHTML = '<p class="success">✅ 已添加脏数据(无videoId)</p>';
+      
+      viewBookmarks();
+    }
+
+    function testCleanup() {
+      const output = document.getElementById('cleanup-output');
+      output.innerHTML = '<p>正在清洗数据...</p>';
+      
+      setTimeout(() => {
+        const cleaned = loadBookmarks();
+        const hasVideoId = cleaned.every(b => b.videoId);
+        
+        if (hasVideoId) {
+          output.innerHTML = '<p class="success">✅ 清洗成功!所有数据都有 videoId</p>';
+        } else {
+          output.innerHTML = '<p class="error">❌ 清洗失败,仍有数据缺少 videoId</p>';
+        }
+        
+        viewBookmarks();
+      }, 100);
+    }
+
+    function clearAll() {
+      if (confirm('确定要清空所有收藏吗?')) {
+        localStorage.setItem('user_assets', '[]');
+        window.dispatchEvent(new Event('storage'));
+        viewBookmarks();
+      }
+    }
+
+    // 监听 storage 事件
+    window.addEventListener('storage', () => {
+      console.log('🔔 收到 storage 事件,自动刷新...');
+      viewBookmarks();
+    });
+
+    // 页面加载时自动显示
+    viewBookmarks();
+  </script>
+</body>
+</html>

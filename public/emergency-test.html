@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>收藏功能紧急测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .danger {
+      background: #dc2626;
+    }
+    .danger:hover {
+      background: #b91c1c;
+    }
+    .output {
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚨 收藏功能紧急测试</h1>
+  
+  <div>
+    <h2>测试 1: 查看 localStorage</h2>
+    <button onclick="viewStorage()">查看当前收藏</button>
+    <div id="storage-output" class="output"></div>
+  </div>
+
+  <div>
+    <h2>测试 2: 手动删除 videoId=201</h2>
+    <button onclick="manualDelete()" class="danger">删除 videoId 201</button>
+    <div id="delete-output" class="output"></div>
+  </div>
+
+  <div>
+    <h2>测试 3: 检查 Hook 函数</h2>
+    <button onclick="checkHook()">检查 useBookmarks</button>
+    <div id="hook-output" class="output"></div>
+  </div>
+
+  <script>
+    function viewStorage() {
+      const output = document.getElementById('storage-output');
+      const data = localStorage.getItem('user_assets');
+      
+      if (!data) {
+        output.textContent = '❌ localStorage 中没有数据';
+        return;
+      }
+      
+      try {
+        const bookmarks = JSON.parse(data);
+        output.textContent = `✅ 找到 ${bookmarks.length} 个收藏:\n\n`;
+        
+        bookmarks.forEach((b, i) => {
+          output.textContent += `${i + 1}. ${b.title}\n`;
+          output.textContent += `   id: ${b.id} (${typeof b.id})\n`;
+          output.textContent += `   videoId: ${b.videoId} (${typeof b.videoId})\n`;
+          output.textContent += `   folder: ${b.folder}\n\n`;
+        });
+        
+        // 检查是否有 videoId 201
+        const has201 = bookmarks.some(b => String(b.videoId) === '201');
+        output.textContent += `\n📌 是否有 videoId=201: ${has201 ? '是' : '否'}`;
+        
+      } catch (error) {
+        output.textContent = '❌ 解析失败: ' + error.message;
+      }
+    }
+
+    function manualDelete() {
+      const output = document.getElementById('delete-output');
+      
+      try {
+        const data = localStorage.getItem('user_assets');
+        if (!data) {
+          output.textContent = '❌ 没有数据可删除';
+          return;
+        }
+        
+        const bookmarks = JSON.parse(data);
+        output.textContent = `删除前: ${bookmarks.length} 个收藏\n\n`;
+        
+        // 查找 videoId 201
+        const target = bookmarks.find(b => String(b.videoId) === '201');
+        if (target) {
+          output.textContent += `找到目标:\n`;
+          output.textContent += `  title: ${target.title}\n`;
+          output.textContent += `  id: ${target.id}\n`;
+          output.textContent += `  videoId: ${target.videoId}\n\n`;
+        } else {
+          output.textContent += '❌ 没有找到 videoId=201 的收藏\n';
+          return;
+        }
+        
+        // 删除
+        const updated = bookmarks.filter(b => String(b.videoId) !== '201');
+        localStorage.setItem('user_assets', JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
+        
+        output.textContent += `✅ 删除成功!\n`;
+        output.textContent += `删除后: ${updated.length} 个收藏\n`;
+        output.textContent += `已触发 storage 事件\n\n`;
+        output.textContent += `请刷新主页面查看效果`;
+        
+      } catch (error) {
+        output.textContent = '❌ 删除失败: ' + error.message;
+      }
+    }
+
+    function checkHook() {
+      const output = document.getElementById('hook-output');
+      output.textContent = '⚠️ 此测试需要在主应用页面的控制台运行\n\n';
+      output.textContent += '请在视频详情页打开控制台,运行:\n\n';
+      output.textContent += 'const data = JSON.parse(localStorage.getItem("user_assets"));\n';
+      output.textContent += 'console.log("收藏数量:", data.length);\n';
+      output.textContent += 'console.log("是否有201:", data.some(b => String(b.videoId) === "201"));\n';
+    }
+
+    // 自动显示
+    viewStorage();
+  </script>
+</body>
+</html>
