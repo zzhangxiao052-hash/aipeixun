@@ -4,38 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Mock notification data
 const MOCK_NOTIFICATIONS = [
-  {
-    id: 'notif_001',
-    type: 'task',
-    subType: 'new',
-    title: '检测到新的实战任务',
-    content: '生成会议纪要初稿',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-    isRead: false,
-    priority: 'high',
-    actionUrl: '/workshop',
-    actionLabel: '去实战',
-    metadata: {
-      videoId: 201,
-      taskId: 'task_740',
-      timestamp: '12:20'
-    }
-  },
-  {
-    id: 'notif_002',
-    type: 'task',
-    subType: 'complete',
-    title: '实战任务完成',
-    content: '恭喜完成"生成会议纪要初稿"，获得积分+20',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-    isRead: false,
-    priority: 'medium',
-    actionUrl: '/profile',
-    actionLabel: '查看积分',
-    metadata: {
-      points: 20
-    }
-  },
+
   {
     id: 'notif_003',
     type: 'interaction',
@@ -157,7 +126,7 @@ export default function NotificationCenter({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full right-0 mt-3 w-96 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className="absolute top-full right-0 w-96 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 bg-gray-50">
         <div className="flex items-center justify-between mb-3">
@@ -182,7 +151,7 @@ export default function NotificationCenter({ isOpen, onClose }) {
         <div className="flex gap-2 overflow-x-auto">
           {[
             { key: 'all', label: '全部' },
-            { key: 'task', label: '任务' },
+
             { key: 'interaction', label: '互动' },
             { key: 'course', label: '课程' },
             { key: 'system', label: '系统' }

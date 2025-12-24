@@ -3,9 +3,10 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { 
   ThumbsUp, Bookmark, Share2, MoreHorizontal, 
   Play, Pause, Volume2, Maximize, Settings, 
-  MessageSquare, Send, X, Plus, Hammer, ExternalLink, MessageCircle 
+  MessageSquare, Send, X, Plus, MessageCircle 
 } from 'lucide-react';
 import BookmarkModal from '../components/BookmarkModal';
+import ToolchainModule from '../components/ToolchainModule';
 
 // Mock Data
 const VIDEO_INFO = {
@@ -17,8 +18,7 @@ const VIDEO_INFO = {
   chapters: [
     { time: 10, label: '1. 模型架构简介' },
     { time: 35, label: '2. 提示词工程基础' },
-    { time: 65, label: '3. 实战：公文生成' },
-    { time: 65, label: '3. 实战：公文生成' },
+    { time: 65, label: '3. 实际应用案例' },
     { time: 85, label: '4. 常见问题解答' }
   ],
   stats: { likes: 154, bookmarks: 32, shares: 20 }
@@ -93,26 +93,14 @@ export default function VideoDetail() {
     }
   };
   
-  const [activeTab, setActiveTab] = useState('目录'); // Default to Directory initially
-  const [taskTriggered, setTaskTriggered] = useState(false);
-  const [completedTasks, setCompletedTasks] = useState(new Set()); // 跟踪已完成的任务
   const [isDragging, setIsDragging] = useState(false);
   const progressBarRef = useRef(null);
   
   // Constants
-  const TASK_TRIGGER_TIME = 740; // 12:20
   const TOTAL_DURATION = 2720; // 45:20
 
   const togglePlay = () => setIsPlaying(!isPlaying);
 
-  // Unified Task Trigger Logic
-  useEffect(() => {
-    if (currentTime >= TASK_TRIGGER_TIME && !taskTriggered) {
-      setTaskTriggered(true);
-      // Optional: Auto-switch tab or just show notification
-      // setActiveTab('实战任务'); 
-    }
-  }, [currentTime, taskTriggered]);
 
   // 同步收藏状态到统计数据
   useEffect(() => {
@@ -188,19 +176,12 @@ export default function VideoDetail() {
   // Handle URL query param for seeking
   useEffect(() => {
     const t = searchParams.get('t');
-    const completed = searchParams.get('completed'); // 检测是否完成了任务
-    
-    if (completed) {
-      // 标记任务为已完成
-      setCompletedTasks(prev => new Set(prev).add(completed));
-    }
     
     if (t) {
       const seekTime = parseInt(t, 10);
       if (!isNaN(seekTime)) {
         setCurrentTime(seekTime);
         setIsPlaying(true);
-        // Trigger logic is now handled by the unified useEffect above
       }
     }
   }, [searchParams]);
@@ -433,138 +414,82 @@ export default function VideoDetail() {
             </button>
           </div>
 
-          {/* Interactive Sidebar Tabs */}
+          {/* Video Directory */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[420px]">
-             {/* Tab Header */}
-             <div className="flex items-center border-b border-gray-100">
-                {['目录', '实战任务', 'AI 工具'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-2.5 text-sm font-bold transition-all relative
-                      ${activeTab === tab ? 'text-blue-700 bg-blue-50/50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}
-                    `}
-                  >
-                    {tab}
-                    {/* Active Indicator */}
-                    {activeTab === tab && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-700 mx-auto w-8 rounded-full"></div>
-                    )}
-                    {/* Notification Dot for Tasks - 只在任务未完成时显示 */}
-                    {tab === '实战任务' && taskTriggered && !completedTasks.has('task_740') && (
-                      <span className="absolute top-2 right-4 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    )}
-                    
-                    {/* Bubble Tip for Task Trigger - 只在任务未完成时显示 */}
-                    {tab === '实战任务' && taskTriggered && activeTab !== '实战任务' && !completedTasks.has('task_740') && (
-                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-blue-600 text-white text-xs p-2 rounded-lg shadow-xl z-50 animate-bounce">
-                         <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45"></div>
-                         检测到实操任务：生成一份纪要初稿
-                       </div>
-                    )}
-                  </button>
-                ))}
+             {/* Header */}
+             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+               <h3 className="font-bold text-sm text-gray-800">课程目录</h3>
+               <span className="text-xs text-gray-500">{VIDEO_INFO.chapters.length} 个章节</span>
              </div>
 
-             {/* Tab Content */}
+             {/* Directory Content */}
              <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
-               
-               {/* Tab 1: Directory */}
-               {activeTab === '目录' && (
-                 <div className="space-y-1">
-                   {VIDEO_INFO.chapters.map((chapter, idx) => (
+               <div className="space-y-2">
+                 {VIDEO_INFO.chapters.map((chapter, idx) => {
+                   // Calculate if this chapter is currently playing
+                   const chapterStartTime = (chapter.time / 100) * TOTAL_DURATION;
+                   const nextChapterTime = idx < VIDEO_INFO.chapters.length - 1 
+                     ? (VIDEO_INFO.chapters[idx + 1].time / 100) * TOTAL_DURATION 
+                     : TOTAL_DURATION;
+                   const isCurrentChapter = currentTime >= chapterStartTime && currentTime < nextChapterTime;
+                   
+                   return (
                      <div 
                        key={idx} 
-                       className={`p-2.5 rounded-lg cursor-pointer flex items-center gap-2 transition-colors
-                         ${idx === 1 ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'}
+                       onClick={() => {
+                         const seekTime = Math.floor(chapterStartTime);
+                         setCurrentTime(seekTime);
+                         setIsPlaying(true);
+                       }}
+                       className={`p-3 rounded-lg cursor-pointer transition-all group
+                         ${isCurrentChapter 
+                           ? 'bg-blue-50 border-2 border-blue-200 shadow-sm' 
+                           : 'border-2 border-transparent hover:bg-gray-50 hover:border-gray-200'}
                        `}
                      >
-                       <div className="text-xs font-mono opacity-60 w-6">{String(idx + 1).padStart(2, '0')}</div>
-                       <div className="flex-1 text-sm font-medium line-clamp-1">{chapter.label.split('. ')[1]}</div>
-                       <div className="text-xs opacity-60">
-                         {Math.floor(chapter.time / 60)}:{(chapter.time % 60).toString().padStart(2, '0')}
+                       <div className="flex items-start gap-3">
+                         {/* Chapter Number */}
+                         <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold
+                           ${isCurrentChapter 
+                             ? 'bg-blue-600 text-white' 
+                             : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'}
+                         `}>
+                           {String(idx + 1).padStart(2, '0')}
+                         </div>
+                         
+                         <div className="flex-1 min-w-0">
+                           {/* Chapter Title */}
+                           <div className={`text-sm font-medium mb-1 line-clamp-2
+                             ${isCurrentChapter ? 'text-blue-700' : 'text-gray-800 group-hover:text-blue-600'}
+                           `}>
+                             {chapter.label}
+                           </div>
+                           
+                           {/* Time Info */}
+                           <div className="flex items-center gap-2">
+                             <span className={`text-xs font-mono
+                               ${isCurrentChapter ? 'text-blue-600' : 'text-gray-500'}
+                             `}>
+                               {Math.floor(chapterStartTime / 60)}:{Math.floor(chapterStartTime % 60).toString().padStart(2, '0')}
+                             </span>
+                             {isCurrentChapter && (
+                               <div className="flex items-center gap-1">
+                                 <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
+                                 <span className="text-xs text-blue-600 font-medium">正在播放</span>
+                               </div>
+                             )}
+                           </div>
+                         </div>
                        </div>
-                       {idx === 1 && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>}
                      </div>
-                   ))}
-                 </div>
-               )}
-
-               {/* Tab 2: Tasks (High Priority) */}
-               {activeTab === '实战任务' && (
-                 <div className="space-y-3">
-                   {taskTriggered && !completedTasks.has('task_740') ? (
-                     <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 animate-in slide-in-from-right-4 duration-500">
-                       <div className="flex items-start justify-between mb-2">
-                         <div className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">当前任务</div>
-                         <span className="text-xs text-blue-400 font-mono">12:20</span>
-                       </div>
-                       <h4 className="font-bold text-gray-800 text-sm mb-1">生成会议纪要初稿</h4>
-                       <p className="text-xs text-gray-500 mb-3">请根据视频中提到的要点，使用 AI 工具生成一份完整的会议纪要。</p>
-                       <Link 
-                         to="/workshop"
-                         className="w-full py-2 border border-blue-600 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 group"
-                       >
-                         <Hammer className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                         去实战
-                       </Link>
-                     </div>
-                   ) : taskTriggered && completedTasks.has('task_740') ? (
-                     <div className="p-3 bg-green-50 rounded-xl border border-green-100">
-                       <div className="flex items-start justify-between mb-2">
-                         <div className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">已完成</div>
-                         <span className="text-xs text-green-400 font-mono">12:20</span>
-                       </div>
-                       <h4 className="font-bold text-gray-800 text-sm mb-1">生成会议纪要初稿 ✓</h4>
-                       <p className="text-xs text-gray-500">您已完成此任务，继续观看视频解锁更多任务。</p>
-                     </div>
-                   ) : (
-                     <div className="p-6 text-center text-gray-400">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <Hammer className="w-5 h-5 opacity-50" />
-                        </div>
-                        <p className="text-xs">观看视频以解锁实战任务</p>
-                     </div>
-                   )}
-
-                   <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 opacity-60">
-                     <div className="flex items-start justify-between mb-2">
-                       <div className="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">待解锁</div>
-                       <span className="text-xs text-gray-400 font-mono">12:45</span>
-                     </div>
-                     <h4 className="font-bold text-gray-700 text-sm mb-1">优化提示词逻辑</h4>
-                     <p className="text-xs text-gray-400">学习如何通过链式思考 (CoT) 优化输出结果。</p>
-                   </div>
-                 </div>
-               )}
-
-               {/* Tab 3: AI Tools */}
-               {activeTab === 'AI 工具' && (
-                 <div className="space-y-2">
-                   {[
-                     { name: 'DeepSeek Chat', icon: 'https://www.deepseek.com/favicon.ico', desc: '国产开源大模型，擅长中文语境' },
-                     { name: 'Kimi 智能助手', icon: 'https://kimi.moonshot.cn/favicon.ico', desc: '支持超长上下文输入' },
-                     { name: 'ChatGPT-4o', icon: 'https://openai.com/favicon.ico', desc: 'OpenAI 最新多模态模型' }
-                   ].map((tool, idx) => (
-                     <div key={idx} className="flex items-center gap-2 p-2.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer group">
-                       <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
-                          {/* Fallback icon if image fails (using first letter) */}
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm">
-                            {tool.name[0]}
-                          </div>
-                       </div>
-                       <div className="flex-1 min-w-0">
-                         <h4 className="text-sm font-bold text-gray-800 group-hover:text-blue-700 transition-colors truncate">{tool.name}</h4>
-                         <p className="text-xs text-gray-500 line-clamp-1">{tool.desc}</p>
-                       </div>
-                       <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-blue-400 flex-shrink-0" />
-                     </div>
-                   ))}
-                 </div>
-               )}
-
+                   );
+                 })}
+               </div>
              </div>
           </div>
+
+          {/* Toolchain Module */}
+          <ToolchainModule />
 
           {/* Recommended Videos */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

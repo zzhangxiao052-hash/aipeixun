@@ -1,238 +1,148 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Clock, AlertCircle, CheckCircle, Calendar } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import BannerCarousel from '../components/BannerCarousel';
+import FeedbackSidebar from '../components/FeedbackSidebar';
 
-const LAST_WATCHED = {
-  id: 101,
-  title: 'AI 辅助公文写作：从入门到精通',
-  cover: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-  progress: 65,
-  timeLeft: '12min',
-  chapter: '第3章：大纲生成的技巧'
-};
-
-import { TASKS } from '../data/tasks';
-
-const PENDING_TASKS = TASKS.filter(t => t.status === 'PENDING');
-
-const RECOMMENDED_VIDEOS = [
-  { 
-    id: 201, 
-    title: 'DeepSeek 深度解析：国产大模型应用', 
-    cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '45:20', 
-    tags: ['技术', '大模型'], 
-    isUpdated: true,
-    author: '技术部'
-  },
-  { 
-    id: 202, 
-    title: '高效办公：Excel 中的 AI 技巧', 
-    cover: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '15:10', 
-    tags: ['办公', '效率'], 
-    isUpdated: false,
-    author: '培训中心'
-  },
-  { 
-    id: 203, 
-    title: '数字化转型案例分析', 
-    cover: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '32:05', 
-    tags: ['管理', '案例'], 
-    isUpdated: false,
-    author: '战略部'
-  },
-  { 
-    id: 204, 
-    title: '网络安全基础意识', 
-    cover: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '20:00', 
-    tags: ['安全', '必修'], 
-    isUpdated: true,
-    author: '安全部'
-  },
-  { 
-    id: 205, 
-    title: 'AI 绘画工具 Midjourney 进阶', 
-    cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '28:15', 
-    tags: ['设计', '创意'], 
-    isUpdated: false,
-    author: '设计部'
-  },
-  { 
-    id: 206, 
-    title: '政务服务中的沟通艺术', 
-    cover: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '40:00', 
-    tags: ['行政', '沟通'], 
-    isUpdated: false,
-    author: '人资部'
-  },
-  { 
-    id: 207, 
-    title: 'Python 数据分析基础', 
-    cover: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '55:30', 
-    tags: ['技术', '数据'], 
-    isUpdated: true,
-    author: '技术部'
-  },
-  { 
-    id: 208, 
-    title: '未来城市：智慧交通系统', 
-    cover: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    duration: '22:45', 
-    tags: ['规划', '前沿'], 
-    isUpdated: false,
-    author: '规划局'
-  }
-];
+import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS, FEATURED_REVIEWS } from '../data/mockData';
 
 export default function Dashboard() {
-  const [lastWatched, setLastWatched] = useState(LAST_WATCHED);
-
-  useEffect(() => {
-    const savedProgress = localStorage.getItem('video_progress_201');
-    if (savedProgress) {
-      const time = parseInt(savedProgress, 10);
-      const totalDuration = 2720; // 45:20 in seconds
-      const progress = Math.min(100, Math.round((time / totalDuration) * 100));
-      
-      setLastWatched(prev => ({
-        ...prev,
-        id: 201, // Ensure it points to our demo video
-        title: 'DeepSeek 深度解析：国产大模型应用实战', // Match video 201
-        cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        progress,
-        time, // Store raw time for link
-        timeLeft: `${Math.ceil((totalDuration - time) / 60)}min`,
-        chapter: '上次观看至 ' + formatTime(time)
-      }));
-    }
-  }, []);
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
   return (
-    <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-8 space-y-10">
+    <div className="min-h-screen">
       
-      {/* --- 1. Hero Section --- */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left: Continue Watching (断点续学) */}
-        <Link 
-          to={`/video/${lastWatched.id}?t=${Math.max(0, (lastWatched.time || 0) - 5)}&resumed=true`}
-          className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-6 items-center transition-shadow hover:shadow-md group cursor-pointer"
-        >
-          <div className="relative w-full sm:w-72 h-48 sm:h-40 flex-shrink-0 rounded-xl overflow-hidden">
-            <img src={lastWatched.cover} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Cover" />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-              <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm scale-90 group-hover:scale-100 transition-transform duration-300">
-                <Play className="w-6 h-6 text-blue-700 ml-1" fill="currentColor" />
-              </div>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200">
-              <div className="h-full bg-blue-600 rounded-r-full" style={{ width: `${lastWatched.progress}%` }}></div>
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-4 w-full">
-            <div className="flex items-center gap-2">
-               <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-md">最近学习</span>
-               <div className="text-sm text-gray-500 font-medium flex items-center gap-1">
-                 <Clock className="w-3.5 h-3.5" /> {lastWatched.chapter}
-               </div>
-            </div>
-            
-            <h2 className="text-2xl font-bold text-gray-800 leading-tight line-clamp-2 group-hover:text-blue-700 transition-colors">
-              {lastWatched.title}
-            </h2>
-            
-            <div className="flex items-center gap-4 pt-2">
-              <div className="px-8 py-2.5 bg-blue-700 group-hover:bg-blue-800 text-white rounded-lg font-medium transition-all shadow-blue-200 shadow-lg group-hover:shadow-blue-300 group-hover:-translate-y-0.5">
-                继续学习
-              </div>
-              <span className="text-sm text-gray-500 font-medium">剩余 {lastWatched.timeLeft}</span>
-            </div>
-          </div>
-        </Link>
-
-        {/* Right: Mandatory Tasks (必修任务提醒) */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col w-full h-full">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-500" />
-              必修任务提醒
-            </h3>
-            {PENDING_TASKS.length > 0 && (
-               <span className="animate-pulse w-2 h-2 bg-red-500 rounded-full"></span>
-            )}
-          </div>
-          
-          {PENDING_TASKS.length > 0 ? (
-            <>
-              <div className="mb-3 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100 font-medium flex items-center gap-2">
-                 <AlertCircle className="w-4 h-4" />
-                 您有 {PENDING_TASKS.length} 项必修任务未完成
-              </div>
-              <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-1">
-                {PENDING_TASKS.map(task => (
-                  <Link to={task.link || `/video/${task.source.id}`} key={task.id} className="group flex items-start gap-3 p-3 rounded-xl bg-gray-50 hover:bg-white border border-transparent hover:border-blue-100 hover:shadow-sm transition-all cursor-pointer">
-                    <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${task.priority === 'HIGH' ? 'bg-red-500' : 'bg-blue-400'}`}></div>
-                    <div className="flex-1">
-                      <div className={`text-sm font-bold ${task.priority === 'HIGH' ? 'text-gray-800' : 'text-gray-700'} group-hover:text-blue-700 transition-colors`}>
-                        {task.title}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> 截止: {task.deadline}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-400 space-y-2">
-              <CheckCircle className="w-12 h-12 text-green-500 opacity-20" />
-              <span className="text-sm">所有必修任务已完成</span>
-            </div>
-          )}
-          
-          <Link to="/tasks" className="w-full mt-4 py-2.5 text-sm text-gray-600 hover:text-blue-700 border border-gray-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all font-medium flex items-center justify-center">
-            查看全部任务
-          </Link>
-        </div>
+      {/* --- 1. Banner Section (Full Width & Under Navbar) --- */}
+      <section className="-mt-16 relative z-0">
+        <BannerCarousel />
       </section>
 
-      {/* --- 2. Recommendations (智能推荐流) --- */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-800">为你推荐</h2>
-            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-bold">AI 精选</span>
+      {/* Floating Feedback Sidebar */}
+      <FeedbackSidebar />
+
+      <div className="max-w-[1800px] mx-auto px-4 md:px-6 py-8 space-y-10">
+        
+        {/* --- 2. Recommendations (智能推荐流) --- */}
+        <VideoSection 
+          title="为你推荐" 
+          badge="AI 精选" 
+          badgeColor="bg-blue-100 text-blue-700"
+          tags={['行政', '财务', '技术', '安全']}
+          videos={RECOMMENDED_VIDEOS}
+          moreLink="/category/recommended"
+        />
+
+        {/* --- 3. Cognitive Layer (前沿洞察) --- */}
+        <VideoSection 
+          title="前沿洞察" 
+          badge="思维重构" 
+          badgeColor="bg-purple-100 text-purple-700"
+          tags={['名词解释', 'AI通识']}
+          videos={COGNITIVE_VIDEOS}
+          moreLink="/category/cognitive"
+        />
+
+        {/* --- 4. Skill Layer (实战赋能) --- */}
+        <VideoSection 
+          title="实战赋能" 
+          badge="降本增效" 
+          badgeColor="bg-green-100 text-green-700"
+          tags={['办公提效', '公文生成', '数据分析']}
+          videos={SKILL_VIDEOS}
+          moreLink="/category/skill"
+        />
+
+        {/* --- 5. Life Layer (场景创新) --- */}
+        <VideoSection 
+          title="场景创新" 
+          badge="应用拓展" 
+          badgeColor="bg-orange-100 text-orange-700"
+          tags={['生活助手', '趣味创作']}
+          videos={LIFE_VIDEOS}
+          moreLink="/category/life"
+        />
+
+        {/* --- 6. Featured Reviews (精彩评价) --- */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">精彩评价</h2>
+            <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded font-bold">学员热评</span>
           </div>
-          <div className="flex gap-2">
-            {['全部', '行政', '财务', '技术', '安全'].map(tag => (
-              <button key={tag} className="px-4 py-1.5 text-sm rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all font-medium">
-                {tag}
-              </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {FEATURED_REVIEWS.map(review => (
+              <Link 
+                key={review.id} 
+                to={`/video/${review.videoId}`}
+                className="group bg-white p-5 rounded-xl border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full bg-gray-100" />
+                  <div>
+                    <div className="font-bold text-gray-800 text-sm">{review.user}</div>
+                    <div className="text-xs text-gray-500">{review.role}</div>
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
+                  "{review.content}"
+                </p>
+
+                <div className="pt-4 border-t border-gray-50 mt-auto">
+                  <div className="flex items-center justify-between text-xs group-hover:text-blue-600 transition-colors">
+                    <span className="text-gray-400">来自课程</span>
+                    <span className="font-medium truncate max-w-[150px]">《{review.videoTitle}》</span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
+        </section>
+      </div>
+    </div>
+  );
+}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-          {RECOMMENDED_VIDEOS.map(video => (
-            <VideoCard key={video.id} data={video} />
+function VideoSection({ title, badge, badgeColor, tags, videos, moreLink = '#' }) {
+  const [activeCategory, setActiveCategory] = useState('全部');
+
+  const filteredVideos = activeCategory === '全部' 
+    ? videos 
+    : videos.filter(video => video.tags.includes(activeCategory));
+
+  return (
+    <section>
+      <div className="flex items-center gap-6 mb-6">
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          <span className={`text-xs px-2 py-1 ${badgeColor} rounded font-bold`}>{badge}</span>
+          
+          <Link to={moreLink} className="flex items-center gap-0.5 text-xs font-medium text-gray-500 hover:text-white bg-gray-100 hover:bg-blue-600 px-3 py-1 rounded-full transition-all ml-2 group/more">
+            更多
+            <ChevronRight className="w-3 h-3 group-hover/more:translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+        <div className="flex gap-2">
+          {['全部', ...tags].map(tag => (
+            <button 
+              key={tag} 
+              onClick={() => setActiveCategory(tag)}
+              className={`px-4 py-1.5 text-sm rounded-full border transition-all font-medium ${
+                activeCategory === tag 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200' 
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200'
+              }`}
+            >
+              {tag}
+            </button>
           ))}
         </div>
-      </section>
-    </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+        {filteredVideos.map(video => (
+          <VideoCard key={video.id} data={video} />
+        ))}
+      </div>
+    </section>
   );
 }
 
