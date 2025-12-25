@@ -18,16 +18,16 @@ export const TASKS = [
   },
   {
     id: 'task_002',
-    title: '上传实战演练报告',
+    title: '上传效能跃升演练报告',
     type: 'PRACTICE',
     status: 'PENDING',
     priority: 'NORMAL',
     deadline: '明天',
-    description: '请根据“DeepSeek 深度解析”课程中的实战任务，上传一份会议纪要生成报告。',
+    description: '请根据“DeepSeek 深度解析”课程中的效能跃升任务，上传一份会议纪要生成报告。',
     source: {
       type: 'COURSE',
       id: 201,
-      title: 'DeepSeek 深度解析：国产大模型应用实战'
+      title: 'DeepSeek 深度解析：国产大模型应用效能跃升'
     },
     link: '/workshop', // Direct link to the workshop page
     progress: 0,

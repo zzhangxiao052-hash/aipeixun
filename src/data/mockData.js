@@ -151,7 +151,7 @@ export const SKILL_VIDEOS = [
   },
   {
     id: 402,
-    title: 'Excel 数据分析实战：透视表与 AI',
+    title: 'Excel 数据分析效能跃升：透视表与 AI',
     cover: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '25:10',
     tags: ['数据分析', '办公提效'],

@@ -27,8 +27,9 @@ export default function TaskCenter() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-12">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 pt-8 pb-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 pt-8 pb-6 px-4 md:px-14">
+        <div className="max-w-[1800px] mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -40,7 +41,7 @@ export default function TaskCenter() {
                 )}
               </h1>
               <p className="text-gray-500 mt-1 text-sm">
-                管理您的必修课程、考核与实战演练任务
+                管理您的必修课程、考核与效能跃升任务
               </p>
             </div>
             
@@ -81,7 +82,7 @@ export default function TaskCenter() {
       </div>
 
       {/* Task List */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-8">
         <div className="space-y-4">
           {filteredTasks.length > 0 ? (
             filteredTasks.map(task => (

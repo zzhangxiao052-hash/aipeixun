@@ -81,7 +81,7 @@ export default function Workshop() {
         addPointHistory(
           'TASK_COMPLETE',
           POINT_RULES.TASK_COMPLETE.points,
-          '完成实战任务：生成会议纪要初稿'
+          '完成效能跃升任务：生成会议纪要初稿'
         );
         
         // 触发全局事件，通知其他组件积分已更新

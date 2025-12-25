@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, Settings, LogOut, User } from 'lucide-react';
+import { Search, Bell, Settings, LogOut, User, History } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 
 
@@ -133,6 +133,12 @@ export default function GlobalNavbar() {
               <div className="space-y-1">
 
 
+                <MenuItem 
+                  icon={History} 
+                  label="观看历史" 
+                  isActive={activeUserItem === '观看历史'} 
+                  onClick={() => navigate('/history')}
+                />
                 <MenuItem 
                   icon={Settings} 
                   label="设置" 

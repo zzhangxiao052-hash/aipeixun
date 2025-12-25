@@ -37,8 +37,8 @@ export default function RequestCourse() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-14">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <Link to="/" className="inline-flex items-center text-gray-500 hover:text-gray-800 mb-4 transition-colors">
@@ -67,7 +67,7 @@ export default function RequestCourse() {
               <input 
                 type="text" 
                 required
-                placeholder="例如：DeepSeek 高级微调实战"
+                placeholder="例如：DeepSeek 高级微调效能跃升"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 value={formData.topic}
                 onChange={e => setFormData({...formData, topic: e.target.value})}

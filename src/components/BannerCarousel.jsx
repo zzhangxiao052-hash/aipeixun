@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const BANNERS = [
@@ -8,8 +9,8 @@ const BANNERS = [
     className: 'bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500',
     brand: '树科云境',
     title: '专家经验转化为标准化方法论',
-    description: '消除 AI 技术恐慌，聚焦公文写作、政策解读、数据合规。助力组织部、管委会及企业主实现降本增效与安全发展。',
-    link: '/course/ai-methodology'
+    description: '消除 AI 技术恐慌，聚焦公文写作、政策解读、数据合规。',
+    link: '/category/cognitive'
   },
   {
     id: 2,
@@ -18,7 +19,7 @@ const BANNERS = [
     brand: '树科云境',
     title: '工具化降低使用门槛',
     description: '聚焦财务人事流、营销获客。用 AI 工具重塑业务流程，让每一次创新都触手可及。',
-    link: '/course/ai-tools'
+    link: '/category/life'
   },
   {
     id: 3,
@@ -27,7 +28,7 @@ const BANNERS = [
     brand: '树科云境',
     title: '安全 · 合规 · 高效',
     description: '关注政绩、数据与安全。为政企提供可信赖的 AI 智能化转型方案。',
-    link: '/course/security'
+    link: '/category/skill'
   }
 ];
 
@@ -88,10 +89,13 @@ export default function BannerCarousel() {
                   </p>
                   
                   <div className="pt-4">
-                    <button className="px-8 py-3 bg-white text-blue-900 hover:bg-blue-50 rounded-full font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2">
+                    <Link 
+                      to={banner.link}
+                      className="inline-flex px-8 py-3 bg-white text-blue-900 hover:bg-blue-50 rounded-full font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 items-center gap-2"
+                    >
                       立即探索
                       <ChevronRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
 

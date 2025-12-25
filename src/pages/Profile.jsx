@@ -54,7 +54,7 @@ export default function Profile() {
       {/* Header Background */}
       <div className="h-48 bg-gradient-to-r from-blue-700 to-blue-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-14 h-full flex items-center">
           <div className="text-white">
             <h1 className="text-4xl font-bold mb-2">个人中心</h1>
             <p className="text-blue-100">管理你的学习收藏</p>
@@ -62,7 +62,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-14 -mt-12 relative z-10">
         {/* Filter Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

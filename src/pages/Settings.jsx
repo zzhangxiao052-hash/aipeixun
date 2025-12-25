@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   User, 
   Lock, 
@@ -18,36 +19,18 @@ import {
   Filter,
   ChevronDown,
   Check,
-  ArrowLeft
+  ArrowLeft,
+  ChevronRight,
+  FileDown
 } from 'lucide-react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-} from 'chart.js';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import 'chart.js/auto';
+import { Bar, Doughnut, Line, Radar, Scatter } from 'react-chartjs-2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement
-);
+import { useLocation } from 'react-router-dom';
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState('personal');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'personal');
 
   const tabs = [
     { id: 'personal', label: '个人设置', icon: User },
@@ -58,14 +41,14 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-12">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 pt-8 pb-4 px-4 sm:px-6 lg:px-8 mb-6">
-        <div className="max-w-7xl mx-auto">
+      <div className="bg-white border-b border-gray-200 pt-8 pb-4 px-4 md:px-14 mb-6">
+        <div className="max-w-[1800px] mx-auto">
           <h1 className="text-2xl font-bold text-gray-900">系统设置</h1>
           <p className="text-gray-500 mt-1">管理您的个人资料、系统权限及查看数据报表</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-14">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
           <div className="w-full md:w-64 flex-shrink-0">
@@ -558,170 +541,349 @@ function PermissionManagement() {
 }
 
 function VisualCockpit() {
-  // Mock Data
-  const deptActivityData = {
-    labels: ['研发部', '市场部', '销售部', '人事部', '财务部', '行政部'],
-    datasets: [
-      {
-        label: '活跃度分数',
-        data: [95, 88, 82, 75, 60, 55],
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderRadius: 4,
-      },
-    ],
-  };
+  // --- Mock Data for Learning Platform View ---
 
-  const coursePopularityData = {
-    labels: ['DeepSeek应用', 'Python入门', 'AI绘画实战', '办公自动化', '数据分析基础'],
+  // 1. Learning Activity Trend (Line Chart)
+  const activityTrendData = {
+    labels: ['12-01', '12-05', '12-10', '12-15', '12-20', '12-25'],
     datasets: [
       {
-        label: '学习人数',
-        data: [1200, 980, 850, 720, 600],
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.5)',
-        tension: 0.3,
+        label: '课程播放量',
+        data: [450, 580, 420, 690, 610, 850],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
         fill: true,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: 'rgb(59, 130, 246)',
+        pointBorderWidth: 2,
       },
+      {
+        label: '活跃学习人数',
+        data: [120, 150, 110, 180, 160, 210],
+        borderColor: 'rgb(168, 85, 247)',
+        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: 'rgb(168, 85, 247)',
+        pointBorderWidth: 2,
+      }
     ],
   };
 
-  const toolUsageData = {
-    labels: ['ChatGPT', 'Midjourney', 'Notion AI', 'Copilot', 'Other'],
+  // 2. Department Efficiency Matrix (Scatter Chart)
+  const deptMatrixData = {
     datasets: [
       {
-        data: [45, 25, 15, 10, 5],
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(168, 85, 247, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(209, 213, 219, 0.8)',
-        ],
-        borderWidth: 0,
+        label: '研发部',
+        data: [{ x: 45, y: 78 }],
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        pointRadius: 12,
+        pointHoverRadius: 15,
+      },
+      {
+        label: '市场部',
+        data: [{ x: 38, y: 65 }],
+        backgroundColor: 'rgba(168, 85, 247, 0.8)',
+        pointRadius: 12,
+        pointHoverRadius: 15,
+      },
+      {
+        label: '产品部',
+        data: [{ x: 35, y: 58 }],
+        backgroundColor: 'rgba(236, 72, 153, 0.8)',
+        pointRadius: 12,
+        pointHoverRadius: 15,
+      },
+      {
+        label: '设计部',
+        data: [{ x: 30, y: 45 }],
+        backgroundColor: 'rgba(251, 146, 60, 0.8)',
+        pointRadius: 12,
+        pointHoverRadius: 15,
+      },
+      {
+        label: '运营部',
+        data: [{ x: 28, y: 40 }],
+        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+        pointRadius: 12,
+        pointHoverRadius: 15,
+      }
+    ],
+  };
+
+  // 3. Talent Skill Portrait (Radar Chart)
+  const skillPortraitData = {
+    labels: ['智能写作', '数据分析', '自动化办公', 'AI绘图设计', '代码辅助', '知识管理'],
+    datasets: [
+      {
+        label: '组织技能掌握度',
+        data: [90, 75, 85, 80, 50, 70],
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
       },
     ],
   };
 
-  const options = {
+  // 4. Trending Courses with Tags
+  const trendingCourses = [
+    { id: 1, title: 'DeepSeek 高效办公效能跃升指南', category: '办公提效', views: '2,345', trend: '+15%', tags: ['效能跃升派', '工具类'] },
+    { id: 2, title: 'Midjourney 商业级绘图进阶', category: 'AI绘画', views: '1,890', trend: '+12%', tags: ['高评分', '工具类'] },
+    { id: 3, title: 'Python 数据分析与可视化', category: '数据分析', views: '1,560', trend: '+8%', tags: ['效能跃升派'] },
+    { id: 4, title: '企业级 Prompt 提示词编写', category: '提示词工程', views: '1,230', trend: '+5%', tags: ['高评分'] },
+  ];
+
+  const commonOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8,
-        }
+        position: 'top',
+        align: 'end',
+        labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } }
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        grid: {
-          display: true,
-          color: 'rgba(0,0,0,0.05)',
-        },
-        border: {
-          display: false,
-        }
+        grid: { color: 'rgba(0,0,0,0.03)' },
+        border: { display: false }
       },
       x: {
-        grid: {
-          display: false,
-        },
-        border: {
-          display: false,
-        }
+        grid: { display: false },
+        border: { display: false }
       }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false,
     },
   };
 
-  const doughnutOptions = {
+  const scatterOptions = {
     responsive: true,
-    cutout: '70%',
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right',
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8,
+        position: 'bottom',
+        labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: 人均${context.parsed.x}h, 调用率${context.parsed.y}%`;
+          }
         }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: '人均学习时长 (小时)', font: { size: 11, weight: 'bold' } },
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        border: { display: false }
+      },
+      y: {
+        title: { display: true, text: '资源调用率 (%)', font: { size: 11, weight: 'bold' } },
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        border: { display: false }
       }
     }
   };
 
+  const radarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        angleLines: { color: 'rgba(0,0,0,0.05)' },
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        pointLabels: { font: { size: 11, weight: 'bold' }, color: '#4B5563' },
+        ticks: { display: false, backdropColor: 'transparent' }
+      }
+    },
+    plugins: {
+      legend: { display: false }
+    }
+  };
+
+  const handleGenerateReport = () => {
+    alert('正在生成月度培训报告...\n\n本功能将调用AI生成包含以下内容的报告：\n• 本月参与学习人数统计\n• 累计节省工时估算\n• 最受欢迎的技能方向\n• 部门学习氛围对比\n• 下月培训建议\n\n报告将以PDF或H5格式输出，方便向上汇报。');
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Personal Dimension Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 to-indigo-700 p-6 rounded-2xl text-white shadow-lg shadow-blue-900/20">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">数字化人才培养驾驶舱</h2>
+          <p className="text-blue-100 text-sm opacity-90">实时监控组织学习氛围与知识技能掌握情况</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={handleGenerateReport}
+            className="flex items-center gap-3 bg-white text-blue-700 px-5 py-2.5 rounded-xl shadow-lg shadow-blue-900/20 hover:bg-blue-50 transition-all active:scale-95 transform hover:-translate-y-0.5"
+          >
+            <div className="p-1.5 bg-blue-100 rounded-lg">
+              <FileDown className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-left">
+              <div className="text-xs font-semibold text-blue-400">一键生成</div>
+              <div className="font-bold text-sm">月度培训报告</div>
+            </div>
+          </button>
+          <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
+            <div className="text-xs text-blue-100">本月活跃率</div>
+            <div className="font-bold text-lg">78%</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
+            <div className="text-xs text-blue-100">总学习人数</div>
+            <div className="font-bold text-lg">1,245</div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard 
+          icon={Users} 
+          title="全员覆盖率" 
+          value="92" 
+          unit="%" 
+          trend="+5%" 
+          trendUp={true}
+          color="blue"
+          subtext="目标 100%"
+          link="/dashboard/coverage"
+        />
         <StatCard 
           icon={Clock} 
-          title="总学时统计" 
-          value="128.5" 
+          title="累计学习时长" 
+          value="15,420" 
           unit="小时" 
           trend="+12%" 
           trendUp={true}
-          color="blue"
+          color="indigo"
+          subtext="人均 12.4 小时"
+          link="/dashboard/duration"
         />
         <StatCard 
           icon={BookOpen} 
           title="课程完课率" 
-          value="85" 
+          value="65" 
           unit="%" 
-          trend="+5%" 
+          trend="+3%" 
           trendUp={true}
           color="purple"
+          subtext="累计完课 3,200 门"
+          link="/dashboard/completion"
         />
         <StatCard 
-          icon={Award} 
-          title="实操成果" 
-          value="12" 
-          unit="个项目" 
-          trend="本月新增 2" 
+          icon={Wrench} 
+          title="工具/资源调用次" 
+          value="8,540" 
+          unit="次" 
+          trend="+18%" 
           trendUp={true}
           color="green"
+          subtext="链接点击与提示词复制"
+          link="/dashboard/resource-usage"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Org Dimension: Dept Activity */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      {/* Main Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Activity Trend */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">部门学习活跃度排名</h3>
-              <p className="text-xs text-gray-500">组织维度数据分析</p>
+              <h3 className="text-lg font-bold text-gray-900">学习活跃度趋势</h3>
+              <p className="text-xs text-gray-500">每日课程播放量与活跃学习人数</p>
             </div>
-            <Users className="w-5 h-5 text-gray-400" />
+            <div className="flex gap-2">
+              <select className="text-xs border-gray-200 rounded-lg text-gray-500 bg-gray-50 border px-2 py-1 outline-none">
+                <option>近 7 天</option>
+                <option>近 30 天</option>
+              </select>
+            </div>
           </div>
-          <div className="h-64">
-            <Bar data={deptActivityData} options={options} />
+          <div className="h-[300px]">
+            <Line data={activityTrendData} options={commonOptions} />
           </div>
         </div>
 
-        {/* Content Dimension: Tool Usage */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        {/* Dept Efficiency Matrix */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">AI 工具使用率分布</h3>
-              <p className="text-xs text-gray-500">内容维度数据分析</p>
-            </div>
-            <Wrench className="w-5 h-5 text-gray-400" />
-          </div>
-          <div className="h-64 flex items-center justify-center">
-            <Doughnut data={toolUsageData} options={doughnutOptions} />
-          </div>
-        </div>
-
-        {/* Content Dimension: Course Popularity */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">课程热度排行趋势</h3>
-              <p className="text-xs text-gray-500">近30天课程访问量统计</p>
+              <h3 className="text-lg font-bold text-gray-900">部门效能对比矩阵</h3>
+              <p className="text-xs text-gray-500">右上角=勤奋且爱动手</p>
             </div>
             <BarChart2 className="w-5 h-5 text-gray-400" />
           </div>
-          <div className="h-72">
-            <Line data={coursePopularityData} options={options} />
+          <div className="h-[300px]">
+            <Scatter data={deptMatrixData} options={scatterOptions} />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Skill Portrait */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">人才技能画像</h3>
+              <p className="text-xs text-gray-500">基于课程观看数据的技能模型</p>
+            </div>
+          </div>
+          <div className="h-[250px] flex items-center justify-center">
+            <Radar data={skillPortraitData} options={radarOptions} />
+          </div>
+        </div>
+
+        {/* Trending Courses */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">热门课程风向标</h3>
+              <p className="text-xs text-gray-500">全平台播放量最高的优质课程</p>
+            </div>
+            <button className="text-sm text-blue-600 font-medium hover:text-blue-700">查看全部</button>
+          </div>
+          
+          <div className="space-y-4">
+            {trendingCourses.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors group cursor-pointer border border-transparent hover:border-blue-100">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    {item.id}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors truncate">{item.title}</h4>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 flex-wrap">
+                      <span className="bg-white px-2 py-0.5 rounded border border-gray-200">{item.category}</span>
+                      <span>播放量 {item.views}</span>
+                      {item.tags.map((tag, idx) => (
+                        <span key={idx} className={`px-2 py-0.5 rounded font-medium ${
+                          tag === '效能跃升派' ? 'bg-orange-100 text-orange-700' :
+                          tag === '高评分' ? 'bg-green-100 text-green-700' :
+                          'bg-purple-100 text-purple-700'
+                        }`}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                  <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">{item.trend}</span>
+                  <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -729,32 +891,50 @@ function VisualCockpit() {
   );
 }
 
-function StatCard({ icon: Icon, title, value, unit, trend, trendUp, color }) {
+function StatCard({ icon: Icon, title, value, unit, trend, trendUp, color, subtext, link }) {
   const colorStyles = {
     blue: 'bg-blue-50 text-blue-600',
+    indigo: 'bg-indigo-50 text-indigo-600',
     purple: 'bg-purple-50 text-purple-600',
     green: 'bg-green-50 text-green-600',
   };
 
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+  const Content = () => (
+    <>
       <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-lg ${colorStyles[color]}`}>
+        <div className={`p-3 rounded-xl ${colorStyles[color]}`}>
           <Icon className="w-6 h-6" />
         </div>
-        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+        <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${
           trendUp ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
         }`}>
-          {trend}
+          {trendUp ? '↑' : '↓'} {trend}
         </span>
       </div>
       <div>
-        <p className="text-sm text-gray-500 mb-1">{title}</p>
-        <div className="flex items-baseline gap-1">
-          <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
-          <span className="text-sm text-gray-400">{unit}</span>
+        <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+        <div className="flex items-baseline gap-1.5 mb-2">
+          <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</h3>
+          <span className="text-sm font-medium text-gray-400">{unit}</span>
         </div>
+        {subtext && (
+          <p className="text-xs text-gray-400 font-medium">{subtext}</p>
+        )}
       </div>
+    </>
+  );
+
+  if (link) {
+    return (
+      <Link to={link} className="block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
+        <Content />
+      </Link>
+    );
+  }
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+      <Content />
     </div>
   );
 }

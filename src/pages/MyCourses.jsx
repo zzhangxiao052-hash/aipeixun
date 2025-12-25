@@ -44,7 +44,7 @@ export default function MyCourses() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-12">
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">我的学习中心</h1>
           <p className="text-gray-500">
             在这里追踪您的 AI 技能提升进度，查看已获得的证书。
@@ -52,7 +52,7 @@ export default function MyCourses() {
         </div>
         
         {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-14">
           <div className="flex gap-8">
             <button
               onClick={() => setActiveTab('learning')}
@@ -80,7 +80,7 @@ export default function MyCourses() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-8">
         
         {/* Learning Tab Content */}
         {activeTab === 'learning' && (

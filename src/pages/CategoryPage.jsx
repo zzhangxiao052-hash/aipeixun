@@ -6,7 +6,6 @@ import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS } from 
 const CATEGORY_CONFIG = {
   recommended: {
     title: '为您推荐',
-    subtitle: 'AI SELECTED COURSES',
     description: '基于您的兴趣与岗位，为您精选最适合的 AI 课程',
     color: 'from-blue-500 to-indigo-600',
     data: RECOMMENDED_VIDEOS,
@@ -14,15 +13,13 @@ const CATEGORY_CONFIG = {
   },
   cognitive: {
     title: '前沿洞察',
-    subtitle: 'COGNITIVE INTELLIGENCE',
     description: '探索 AI 本质，构建数字化思维模型',
     color: 'from-purple-500 to-violet-600',
     data: COGNITIVE_VIDEOS,
     tags: ['全部', '名词解释', 'AI通识', '历史', '伦理']
   },
   skill: {
-    title: '实战赋能',
-    subtitle: 'PRACTICAL SKILLS',
+    title: '效能跃升',
     description: '掌握 AI 工具，实现办公效率指数级提升',
     color: 'from-emerald-500 to-teal-600',
     data: SKILL_VIDEOS,
@@ -30,7 +27,6 @@ const CATEGORY_CONFIG = {
   },
   life: {
     title: '场景创新',
-    subtitle: 'SCENARIO INNOVATION',
     description: '将 AI 融入生活，体验科技带来的无限可能',
     color: 'from-orange-400 to-amber-500',
     data: LIFE_VIDEOS,
@@ -74,12 +70,9 @@ export default function CategoryPage() {
 
         <div className="container mx-auto px-6 h-full flex flex-col justify-center relative z-10">
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2 tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
               {config.title}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-400 font-light tracking-widest uppercase mb-8">
-              {config.subtitle}
-            </p>
             
             {/* Search Bar */}
             <div className="relative max-w-lg">

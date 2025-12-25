@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { 
   ThumbsUp, Bookmark, Share2, MoreHorizontal, 
   Play, Pause, Volume2, Maximize, Settings, 
-  MessageSquare, Send, X, Plus, MessageCircle 
+  MessageSquare, Send, X, Plus, MessageCircle, ChevronLeft 
 } from 'lucide-react';
 import BookmarkModal from '../components/BookmarkModal';
 import ToolchainModule from '../components/ToolchainModule';
@@ -11,10 +11,10 @@ import ToolchainModule from '../components/ToolchainModule';
 // Mock Data
 const VIDEO_INFO = {
   id: 201,
-  title: 'DeepSeek 深度解析：国产大模型应用实战',
+  title: 'DeepSeek 深度解析：国产大模型应用效能跃升',
   views: '12.5w',
   date: '2023-12-10',
-  desc: '本课程深入解析 DeepSeek 大模型的架构与应用场景，重点讲解在公文写作、数据分析中的实战技巧。',
+  desc: '本课程深入解析 DeepSeek 大模型的架构与应用场景，重点讲解在公文写作、数据分析中的效能跃升技巧。',
   chapters: [
     { time: 10, label: '1. 模型架构简介' },
     { time: 35, label: '2. 提示词工程基础' },
@@ -239,6 +239,22 @@ export default function VideoDetail() {
         {/* --- Left Column: Player & Content --- */}
         <div className="space-y-6">
           
+          {/* Breadcrumb for History Resume */}
+          {searchParams.get('resumed') === 'true' && (
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-[-10px]">
+              <Link to="/history" className="flex items-center hover:text-blue-600 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center mr-2 group-hover:bg-blue-50">
+                   <ChevronLeft className="w-4 h-4" />
+                </div>
+                观看历史
+              </Link>
+              <span className="text-gray-300">/</span>
+              <span className="text-gray-800 font-medium truncate max-w-[300px]">
+                {VIDEO_INFO.title}
+              </span>
+            </div>
+          )}
+
           {/* 1. Video Player Container */}
           <div 
             className="relative w-full aspect-video bg-black rounded-xl overflow-hidden group shadow-lg cursor-pointer"

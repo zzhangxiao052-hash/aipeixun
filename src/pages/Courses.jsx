@@ -24,7 +24,7 @@ const MOCK_COURSES = [
   },
   {
     id: 3,
-    title: '政务大数据可视化实战：ECharts 大屏制作',
+    title: '政务大数据可视化效能跃升：ECharts 大屏制作',
     instructor: '张工',
     views: '5.6k',
     duration: '6h 00m',
@@ -79,8 +79,8 @@ export default function Courses() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-6 items-center">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">实战课堂 Courses</h1>
-            <p className="text-gray-500">精选 AI 实战课程，助力数字化转型能力提升。</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">效能跃升课堂 Courses</h1>
+            <p className="text-gray-500">精选 AI 效能跃升课程，助力数字化转型能力提升。</p>
           </div>
           <div className="flex gap-4">
             <div className="bg-blue-50 text-blue-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 cursor-pointer hover:bg-blue-100 transition-colors">

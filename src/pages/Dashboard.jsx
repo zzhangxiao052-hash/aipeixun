@@ -40,9 +40,9 @@ export default function Dashboard() {
           moreLink="/category/cognitive"
         />
 
-        {/* --- 4. Skill Layer (实战赋能) --- */}
+        {/* --- 4. Skill Layer (效能跃升) --- */}
         <VideoSection 
-          title="实战赋能" 
+          title="效能跃升" 
           badge="降本增效" 
           badgeColor="bg-green-100 text-green-700"
           tags={['办公提效', '公文生成', '数据分析']}

@@ -27,7 +27,7 @@ const MOCK_NOTIFICATIONS = [
     type: 'course',
     subType: 'update',
     title: '课程更新',
-    content: '《DeepSeek深度解析》新增第5章：高级应用实战',
+    content: '《DeepSeek深度解析》新增第5章：高级应用效能跃升',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
     isRead: true,
     priority: 'medium',
@@ -37,19 +37,7 @@ const MOCK_NOTIFICATIONS = [
       courseId: 201
     }
   },
-  {
-    id: 'notif_005',
-    type: 'system',
-    subType: 'announcement',
-    title: '平台新功能上线',
-    content: '平台新增"AI工具箱"功能，集成了10+主流AI工具，快去体验吧',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-    isRead: true,
-    priority: 'high',
-    actionUrl: '/toolkit',
-    actionLabel: '去体验',
-    metadata: {}
-  }
+
 ];
 
 export default function NotificationCenter({ isOpen, onClose }) {

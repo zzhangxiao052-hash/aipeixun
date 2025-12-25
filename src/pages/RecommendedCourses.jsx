@@ -99,7 +99,7 @@ export default function RecommendedCourses() {
             AI 赋能政务办公，让工作更轻松
           </h1>
           <p className="text-blue-100 text-lg max-w-2xl mb-8">
-            精选适合政府工作人员的 AI 实战课程，不学代码，只学方法。
+            精选适合政府工作人员的 AI 效能跃升课程，不学代码，只学方法。
             从公文写作到数据分析，全方位提升您的办公效率。
           </p>
           

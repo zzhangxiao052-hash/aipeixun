@@ -9,7 +9,7 @@ import Footer from './components/Footer';
 
 import Courses from './pages/Courses';
 import Profile from './pages/Profile';
-import Toolkit from './pages/Toolkit';
+
 import VideoDetail from './pages/VideoDetail';
 
 import RecommendedCourses from './pages/RecommendedCourses';
@@ -18,6 +18,11 @@ import CategoryPage from './pages/CategoryPage';
 import RequestCourse from './pages/RequestCourse';
 import TechnicalSupport from './pages/TechnicalSupport';
 import Settings from './pages/Settings';
+import HistoryPage from './pages/HistoryPage';
+import CoverageDetails from './pages/dashboard/CoverageDetails';
+import DurationDetails from './pages/dashboard/DurationDetails';
+import CompletionDetails from './pages/dashboard/CompletionDetails';
+import ResourceDetails from './pages/dashboard/ResourceDetails';
 import { initializeUserPoints } from './utils/initPoints';
 
 function AppContent() {
@@ -39,13 +44,18 @@ function AppContent() {
           <Route path="/courses" element={<RecommendedCourses />} />
           <Route path="/courses/recommended" element={<RecommendedCourses />} />
           <Route path="/courses/my" element={<MyCourses />} />
-          <Route path="/toolkit" element={<Toolkit />} />
+
           <Route path="/video" element={<VideoDetail />} />
           <Route path="/video/:id" element={<VideoDetail />} />
           <Route path="/category/:type" element={<CategoryPage />} />
           <Route path="/feedback/request" element={<RequestCourse />} />
           <Route path="/feedback/support" element={<TechnicalSupport />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/dashboard/coverage" element={<CoverageDetails />} />
+          <Route path="/dashboard/duration" element={<DurationDetails />} />
+          <Route path="/dashboard/completion" element={<CompletionDetails />} />
+          <Route path="/dashboard/resource-usage" element={<ResourceDetails />} />
         </Routes>
       </main>
       {!isLoginPage && <Footer />}

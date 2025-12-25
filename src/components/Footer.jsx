@@ -23,7 +23,7 @@ const Footer = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 text-lg">
               <Link to="/category/recommended" className="hover:text-white transition-colors">推荐视频</Link>
               <Link to="/category/cognitive" className="hover:text-white transition-colors">前沿洞察</Link>
-              <Link to="/category/skill" className="hover:text-white transition-colors">实战赋能</Link>
+              <Link to="/category/skill" className="hover:text-white transition-colors">效能跃升</Link>
               <Link to="/category/life" className="hover:text-white transition-colors">场景创新</Link>
               <Link to="/profile" className="hover:text-white transition-colors">个人中心</Link>
               <Link to="/settings" className="hover:text-white transition-colors">系统设置</Link>
