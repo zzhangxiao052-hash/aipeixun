@@ -79,17 +79,7 @@ export default function GlobalNavbar() {
 
         {/* --- Right: User --- */}
         <div className="flex items-center gap-5">
-          {/* Personal Center Button */}
-          <button 
-            onClick={() => navigate('/profile')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              isTransparent 
-                ? 'text-white hover:bg-white/20' 
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            个人中心
-          </button>
+
 
           <div 
             className="relative py-2"
@@ -131,6 +121,12 @@ export default function GlobalNavbar() {
               </div>
               
               <div className="space-y-1">
+                <MenuItem 
+                  icon={User} 
+                  label="我的收藏" 
+                  isActive={location.pathname === '/profile'} 
+                  onClick={() => navigate('/profile')}
+                />
 
 
                 <MenuItem 

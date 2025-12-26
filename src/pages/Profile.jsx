@@ -56,7 +56,7 @@ export default function Profile() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="max-w-[1800px] mx-auto px-4 md:px-14 h-full flex items-center">
           <div className="text-white">
-            <h1 className="text-4xl font-bold mb-2">个人中心</h1>
+            <h1 className="text-4xl font-bold mb-2">我的收藏</h1>
             <p className="text-blue-100">管理你的学习收藏</p>
           </div>
         </div>

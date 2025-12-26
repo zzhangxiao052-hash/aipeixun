@@ -4,7 +4,7 @@ export const RECOMMENDED_VIDEOS = [
     title: 'DeepSeek 深度解析：国产大模型应用', 
     cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '45:20', 
-    tags: ['技术', '大模型'], 
+    tags: ['技术', '大模型', '研发'], 
     isUpdated: true,
     author: '技术部'
   },
@@ -13,7 +13,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '高效办公：Excel 中的 AI 技巧', 
     cover: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '15:10', 
-    tags: ['办公', '效率'], 
+    tags: ['办公', '效率', '营销'], 
     isUpdated: false,
     author: '培训中心'
   },
@@ -22,7 +22,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '数字化转型案例分析', 
     cover: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '32:05', 
-    tags: ['管理', '案例'], 
+    tags: ['管理', '案例', '运营'], 
     isUpdated: false,
     author: '战略部'
   },
@@ -31,7 +31,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '网络安全基础意识', 
     cover: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '20:00', 
-    tags: ['安全', '必修'], 
+    tags: ['安全', '必修', '法律'], 
     isUpdated: true,
     author: '安全部'
   },
@@ -40,7 +40,7 @@ export const RECOMMENDED_VIDEOS = [
     title: 'AI 绘画工具 Midjourney 进阶', 
     cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '28:15', 
-    tags: ['设计', '创意'], 
+    tags: ['设计', '创意', '研发'], 
     isUpdated: false,
     author: '设计部'
   },
@@ -49,7 +49,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '政务服务中的沟通艺术', 
     cover: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '40:00', 
-    tags: ['行政', '沟通'], 
+    tags: ['行政', '沟通', '人事'], 
     isUpdated: false,
     author: '人资部'
   },
@@ -58,7 +58,7 @@ export const RECOMMENDED_VIDEOS = [
     title: 'Python 数据分析基础', 
     cover: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '55:30', 
-    tags: ['技术', '数据'], 
+    tags: ['技术', '数据', '研发'], 
     isUpdated: true,
     author: '技术部'
   },
@@ -67,7 +67,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '未来城市：智慧交通系统', 
     cover: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '22:45', 
-    tags: ['规划', '前沿'], 
+    tags: ['规划', '前沿', '运营'], 
     isUpdated: false,
     author: '规划局'
   },
@@ -76,7 +76,7 @@ export const RECOMMENDED_VIDEOS = [
     title: 'AI 辅助公文写作', 
     cover: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '18:30', 
-    tags: ['行政', '写作'], 
+    tags: ['行政', '写作', '管理'], 
     isUpdated: true,
     author: '行政部'
   },
@@ -85,7 +85,7 @@ export const RECOMMENDED_VIDEOS = [
     title: '企业财务风险智能预警', 
     cover: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
     duration: '35:45', 
-    tags: ['财务', '风控'], 
+    tags: ['财务', '风控', '法律'], 
     isUpdated: false,
     author: '财务部'
   }
@@ -97,7 +97,7 @@ export const COGNITIVE_VIDEOS = [
     title: '什么是大语言模型 (LLM)？',
     cover: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '10:00',
-    tags: ['名词解释', '基础'],
+    tags: ['名词解释', '基础', '行业趋势'],
     isUpdated: false,
     author: 'AI研究院'
   },
@@ -106,7 +106,7 @@ export const COGNITIVE_VIDEOS = [
     title: '人工智能发展简史：从图灵测试到 GPT',
     cover: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '45:00',
-    tags: ['AI通识', '历史'],
+    tags: ['AI通识', '历史', '未来展望'],
     isUpdated: true,
     author: '科技史话'
   },
@@ -115,7 +115,7 @@ export const COGNITIVE_VIDEOS = [
     title: 'Transformer 架构详解',
     cover: 'https://images.unsplash.com/photo-1655720357761-f18ea9e5e7e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '15:30',
-    tags: ['名词解释', '技术原理'],
+    tags: ['名词解释', '技术原理', '专家访谈'],
     isUpdated: false,
     author: '技术部'
   },
@@ -124,7 +124,7 @@ export const COGNITIVE_VIDEOS = [
     title: '生成式 AI 与 判别式 AI 的区别',
     cover: 'https://images.unsplash.com/photo-1676299081847-824916de030a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '12:00',
-    tags: ['AI通识', '概念'],
+    tags: ['AI通识', '概念', '案例拆解'],
     isUpdated: false,
     author: 'AI研究院'
   },
@@ -133,7 +133,7 @@ export const COGNITIVE_VIDEOS = [
     title: 'AI 伦理与安全导论',
     cover: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '20:00',
-    tags: ['AI通识', '伦理'],
+    tags: ['AI通识', '伦理', '伦理规范', '政策解读'],
     isUpdated: true,
     author: '安全部'
   }
@@ -145,7 +145,7 @@ export const SKILL_VIDEOS = [
     title: '10倍效率：Word 公文自动生成',
     cover: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '08:45',
-    tags: ['公文生成', '办公提效'],
+    tags: ['公文生成', '办公提效', '邮件撰写'],
     isUpdated: true,
     author: '行政部'
   },
@@ -154,7 +154,7 @@ export const SKILL_VIDEOS = [
     title: 'Excel 数据分析效能跃升：透视表与 AI',
     cover: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '25:10',
-    tags: ['数据分析', '办公提效'],
+    tags: ['数据分析', '办公提效', '流程自动化'],
     isUpdated: false,
     author: '数据中心'
   },
@@ -163,7 +163,7 @@ export const SKILL_VIDEOS = [
     title: 'PPT 快速美化技巧：一键排版',
     cover: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '14:20',
-    tags: ['办公提效', '设计'],
+    tags: ['办公提效', '设计', '图像处理'],
     isUpdated: false,
     author: '设计部'
   },
@@ -172,7 +172,7 @@ export const SKILL_VIDEOS = [
     title: '会议纪要自动整理工具评测',
     cover: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '05:50',
-    tags: ['办公提效', '工具'],
+    tags: ['办公提效', '工具', '会议纪要'],
     isUpdated: true,
     author: '效率组'
   },
@@ -181,7 +181,7 @@ export const SKILL_VIDEOS = [
     title: 'Python 自动化办公入门',
     cover: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '30:00',
-    tags: ['数据分析', '编程'],
+    tags: ['数据分析', '编程', '代码辅助', '流程自动化'],
     isUpdated: false,
     author: '技术部'
   }
@@ -193,7 +193,7 @@ export const LIFE_VIDEOS = [
     title: 'AI 帮你做旅游攻略：省时省力',
     cover: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '10:00',
-    tags: ['生活助手', '旅行'],
+    tags: ['生活助手', '旅行', '旅游规划'],
     isUpdated: false,
     author: '生活家'
   },
@@ -202,7 +202,7 @@ export const LIFE_VIDEOS = [
     title: '用 AI 创作你的第一首歌',
     cover: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '15:00',
-    tags: ['趣味创作', '音乐'],
+    tags: ['趣味创作', '音乐', '创意写作'],
     isUpdated: true,
     author: '创意实验室'
   },
@@ -211,7 +211,7 @@ export const LIFE_VIDEOS = [
     title: '智能家居设置指南',
     cover: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '12:30',
-    tags: ['生活助手', '家居'],
+    tags: ['生活助手', '家居', '情感陪伴'],
     isUpdated: false,
     author: '极客公园'
   },
@@ -220,7 +220,7 @@ export const LIFE_VIDEOS = [
     title: 'Midjourney 制作个性头像',
     cover: 'https://images.unsplash.com/photo-1633113090205-cc1ac795b5f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '08:00',
-    tags: ['趣味创作', '绘画'],
+    tags: ['趣味创作', '绘画', '艺术设计'],
     isUpdated: false,
     author: '设计部'
   },
@@ -229,7 +229,7 @@ export const LIFE_VIDEOS = [
     title: 'AI 健身教练体验',
     cover: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     duration: '11:15',
-    tags: ['生活助手', '健康'],
+    tags: ['生活助手', '健康', '健康咨询', '学习辅导'],
     isUpdated: true,
     author: '健康组'
   }

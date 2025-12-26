@@ -9,28 +9,28 @@ const CATEGORY_CONFIG = {
     description: '基于您的兴趣与岗位，为您精选最适合的 AI 课程',
     color: 'from-blue-500 to-indigo-600',
     data: RECOMMENDED_VIDEOS,
-    tags: ['全部', '行政', '财务', '技术', '安全']
+    tags: ['全部', '行政', '财务', '技术', '安全', '人事', '营销', '运营', '管理', '法律', '研发']
   },
   cognitive: {
     title: '前沿洞察',
     description: '探索 AI 本质，构建数字化思维模型',
     color: 'from-purple-500 to-violet-600',
     data: COGNITIVE_VIDEOS,
-    tags: ['全部', '名词解释', 'AI通识', '历史', '伦理']
+    tags: ['全部', '名词解释', 'AI通识', '历史', '伦理', '行业趋势', '政策解读', '伦理规范', '未来展望', '专家访谈', '案例拆解']
   },
   skill: {
     title: '效能跃升',
     description: '掌握 AI 工具，实现办公效率指数级提升',
     color: 'from-emerald-500 to-teal-600',
     data: SKILL_VIDEOS,
-    tags: ['全部', '办公提效', '公文生成', '数据分析', '设计']
+    tags: ['全部', '办公提效', '公文生成', '数据分析', '设计', '图像处理', '视频剪辑', '代码辅助', '会议纪要', '邮件撰写', '流程自动化']
   },
   life: {
     title: '场景创新',
     description: '将 AI 融入生活，体验科技带来的无限可能',
     color: 'from-orange-400 to-amber-500',
     data: LIFE_VIDEOS,
-    tags: ['全部', '生活助手', '趣味创作', '旅行', '健康']
+    tags: ['全部', '生活助手', '趣味创作', '旅行', '健康', '学习辅导', '健康咨询', '旅游规划', '创意写作', '艺术设计', '情感陪伴']
   }
 };
 
@@ -70,6 +70,13 @@ export default function CategoryPage() {
 
         <div className="container mx-auto px-6 h-full flex flex-col justify-center relative z-10">
           <div className="max-w-2xl">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <Link to="/" className="hover:text-blue-600 transition-colors">首页</Link>
+              <ChevronRight className="w-4 h-4" />
+              <span className="text-gray-900 font-medium">{config.title}</span>
+            </div>
+
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
               {config.title}
             </h1>
@@ -118,7 +125,7 @@ export default function CategoryPage() {
             {filteredVideos.map(video => (
               <Link 
                 key={video.id} 
-                to={`/video/${video.id}`}
+                to={`/video/${video.id}?from=${type}`}
                 className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 {/* Thumbnail */}
@@ -146,10 +153,6 @@ export default function CategoryPage() {
                   </h3>
                   
                   <div className="mt-auto pt-4 flex items-center justify-between text-xs text-gray-500 border-t border-gray-50">
-                    <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5" />
-                      <span>{video.author}</span>
-                    </div>
                     <div className="flex gap-1">
                       {video.tags.slice(0, 2).map(tag => (
                         <span key={tag} className="bg-gray-50 px-1.5 py-0.5 rounded text-gray-400">

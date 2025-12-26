@@ -21,7 +21,7 @@ import {
   Check,
   ArrowLeft,
   ChevronRight,
-  FileDown
+
 } from 'lucide-react';
 import 'chart.js/auto';
 import { Bar, Doughnut, Line, Radar, Scatter } from 'react-chartjs-2';
@@ -709,9 +709,7 @@ function VisualCockpit() {
     }
   };
 
-  const handleGenerateReport = () => {
-    alert('正在生成月度培训报告...\n\n本功能将调用AI生成包含以下内容的报告：\n• 本月参与学习人数统计\n• 累计节省工时估算\n• 最受欢迎的技能方向\n• 部门学习氛围对比\n• 下月培训建议\n\n报告将以PDF或H5格式输出，方便向上汇报。');
-  };
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -722,18 +720,7 @@ function VisualCockpit() {
           <p className="text-blue-100 text-sm opacity-90">实时监控组织学习氛围与知识技能掌握情况</p>
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={handleGenerateReport}
-            className="flex items-center gap-3 bg-white text-blue-700 px-5 py-2.5 rounded-xl shadow-lg shadow-blue-900/20 hover:bg-blue-50 transition-all active:scale-95 transform hover:-translate-y-0.5"
-          >
-            <div className="p-1.5 bg-blue-100 rounded-lg">
-              <FileDown className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-semibold text-blue-400">一键生成</div>
-              <div className="font-bold text-sm">月度培训报告</div>
-            </div>
-          </button>
+
           <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
             <div className="text-xs text-blue-100">本月活跃率</div>
             <div className="font-bold text-lg">78%</div>

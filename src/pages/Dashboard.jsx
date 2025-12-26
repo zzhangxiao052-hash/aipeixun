@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
-import FeedbackSidebar from '../components/FeedbackSidebar';
+
 
 import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS, FEATURED_REVIEWS } from '../data/mockData';
 
@@ -15,8 +15,7 @@ export default function Dashboard() {
         <BannerCarousel />
       </section>
 
-      {/* Floating Feedback Sidebar */}
-      <FeedbackSidebar />
+
 
       <div className="max-w-[1800px] mx-auto px-4 md:px-6 py-8 space-y-10">
         
@@ -25,9 +24,10 @@ export default function Dashboard() {
           title="为你推荐" 
           badge="AI 精选" 
           badgeColor="bg-blue-100 text-blue-700"
-          tags={['行政', '财务', '技术', '安全']}
+          tags={['行政', '财务', '技术', '安全', '人事', '营销', '运营', '管理', '法律', '研发']}
           videos={RECOMMENDED_VIDEOS}
           moreLink="/category/recommended"
+          categoryKey="recommended"
         />
 
         {/* --- 3. Cognitive Layer (前沿洞察) --- */}
@@ -35,9 +35,10 @@ export default function Dashboard() {
           title="前沿洞察" 
           badge="思维重构" 
           badgeColor="bg-purple-100 text-purple-700"
-          tags={['名词解释', 'AI通识']}
+          tags={['名词解释', 'AI通识', '行业趋势', '政策解读', '伦理规范', '未来展望', '专家访谈', '案例拆解']}
           videos={COGNITIVE_VIDEOS}
           moreLink="/category/cognitive"
+          categoryKey="cognitive"
         />
 
         {/* --- 4. Skill Layer (效能跃升) --- */}
@@ -45,9 +46,10 @@ export default function Dashboard() {
           title="效能跃升" 
           badge="降本增效" 
           badgeColor="bg-green-100 text-green-700"
-          tags={['办公提效', '公文生成', '数据分析']}
+          tags={['办公提效', '公文生成', '数据分析', '图像处理', '视频剪辑', '代码辅助', '会议纪要', '邮件撰写', '流程自动化']}
           videos={SKILL_VIDEOS}
           moreLink="/category/skill"
+          categoryKey="skill"
         />
 
         {/* --- 5. Life Layer (场景创新) --- */}
@@ -55,9 +57,10 @@ export default function Dashboard() {
           title="场景创新" 
           badge="应用拓展" 
           badgeColor="bg-orange-100 text-orange-700"
-          tags={['生活助手', '趣味创作']}
+          tags={['生活助手', '趣味创作', '学习辅导', '健康咨询', '旅游规划', '创意写作', '艺术设计', '情感陪伴']}
           videos={LIFE_VIDEOS}
           moreLink="/category/life"
+          categoryKey="life"
         />
 
         {/* --- 6. Featured Reviews (精彩评价) --- */}
@@ -101,7 +104,7 @@ export default function Dashboard() {
   );
 }
 
-function VideoSection({ title, badge, badgeColor, tags, videos, moreLink = '#' }) {
+function VideoSection({ title, badge, badgeColor, tags, videos, moreLink = '#', categoryKey }) {
   const [activeCategory, setActiveCategory] = useState('全部');
 
   const filteredVideos = activeCategory === '全部' 
@@ -139,16 +142,16 @@ function VideoSection({ title, badge, badgeColor, tags, videos, moreLink = '#' }
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
         {filteredVideos.map(video => (
-          <VideoCard key={video.id} data={video} />
+          <VideoCard key={video.id} data={video} categoryKey={categoryKey} />
         ))}
       </div>
     </section>
   );
 }
 
-function VideoCard({ data }) {
+function VideoCard({ data, categoryKey }) {
   return (
-    <Link to={`/video/${data.id}`} className="group bg-white rounded-xl overflow-hidden border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <Link to={`/video/${data.id}${categoryKey ? `?from=${categoryKey}` : ''}`} className="group bg-white rounded-xl overflow-hidden border border-gray-100 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       {/* Thumbnail Container */}
       <div className="relative aspect-video bg-gray-100 overflow-hidden">
         <img src={data.cover} alt={data.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -175,7 +178,6 @@ function VideoCard({ data }) {
           {data.title}
         </h3>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500 font-medium hover:text-gray-700">{data.author}</span>
           <div className="flex gap-1">
             {data.tags.map(tag => (
               <span key={tag} className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] text-gray-500 font-medium group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">

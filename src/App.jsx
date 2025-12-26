@@ -6,6 +6,7 @@ import TaskCenter from './pages/TaskCenter';
 import Workshop from './pages/Workshop';
 import Login from './pages/Login';
 import Footer from './components/Footer';
+import FeedbackSidebar from './components/FeedbackSidebar';
 
 import Courses from './pages/Courses';
 import Profile from './pages/Profile';
@@ -59,6 +60,7 @@ function AppContent() {
         </Routes>
       </main>
       {!isLoginPage && <Footer />}
+      {!isLoginPage && <FeedbackSidebar />}
     </div>
   );
 }

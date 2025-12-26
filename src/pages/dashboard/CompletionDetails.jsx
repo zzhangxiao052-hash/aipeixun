@@ -37,12 +37,12 @@ export default function CompletionDetails() {
   ];
 
   const personList = [
-    { id: 1, name: '张三', dept: '研发部', selected: 12, completed: 10, progress: 83 },
-    { id: 2, name: '李四', dept: '产品部', selected: 15, completed: 8, progress: 53 },
-    { id: 3, name: '王五', dept: '运营部', selected: 8, completed: 8, progress: 100 },
-    { id: 4, name: '赵六', dept: '市场部', selected: 20, completed: 5, progress: 25 },
-    { id: 5, name: '孙七', dept: '设计部', selected: 10, completed: 9, progress: 90 },
-    { id: 6, name: '周八', dept: '人事部', selected: 5, completed: 1, progress: 20 },
+    { id: 1, name: '张三', dept: '研发部', basicRate: 92, practicalRate: 85 },
+    { id: 2, name: '李四', dept: '产品部', basicRate: 65, practicalRate: 42 },
+    { id: 3, name: '王五', dept: '运营部', basicRate: 100, practicalRate: 98 },
+    { id: 4, name: '赵六', dept: '市场部', basicRate: 35, practicalRate: 20 },
+    { id: 5, name: '孙七', dept: '设计部', basicRate: 88, practicalRate: 90 },
+    { id: 6, name: '周八', dept: '人事部', basicRate: 45, practicalRate: 15 },
   ];
 
   return (
@@ -238,9 +238,8 @@ export default function CompletionDetails() {
                     <tr>
                       <th className="px-6 py-4">姓名</th>
                       <th className="px-6 py-4">部门</th>
-                      <th className="px-6 py-4">已选课数</th>
-                      <th className="px-6 py-4">已完结数</th>
-                      <th className="px-6 py-4 w-1/3">当前进度</th>
+                      <th className="px-6 py-4">基础认知完成率</th>
+                      <th className="px-6 py-4">效能跃升技能完成率</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -248,20 +247,32 @@ export default function CompletionDetails() {
                       <tr key={person.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-medium text-gray-900">{person.name}</td>
                         <td className="px-6 py-4 text-gray-600">{person.dept}</td>
-                        <td className="px-6 py-4 text-gray-900">{person.selected}</td>
-                        <td className="px-6 py-4 text-green-600 font-medium">{person.completed}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex-1 bg-gray-100 rounded-full h-2">
+                            <div className="w-32 bg-gray-100 rounded-full h-2">
                               <div 
                                 className={`h-2 rounded-full transition-all duration-500 ${
-                                  person.progress === 100 ? 'bg-green-500' : 
-                                  person.progress < 30 ? 'bg-red-500' : 'bg-blue-500'
+                                  person.basicRate >= 80 ? 'bg-blue-500' : 
+                                  person.basicRate >= 50 ? 'bg-yellow-500' : 'bg-red-500'
                                 }`} 
-                                style={{ width: `${person.progress}%` }}
+                                style={{ width: `${person.basicRate}%` }}
                               ></div>
                             </div>
-                            <span className="text-xs font-bold text-gray-600 w-8 text-right">{person.progress}%</span>
+                            <span className="text-xs font-bold text-gray-600 w-8 text-right">{person.basicRate}%</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-32 bg-gray-100 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full transition-all duration-500 ${
+                                  person.practicalRate >= 80 ? 'bg-green-500' : 
+                                  person.practicalRate >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`} 
+                                style={{ width: `${person.practicalRate}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs font-bold text-gray-600 w-8 text-right">{person.practicalRate}%</span>
                           </div>
                         </td>
                       </tr>
@@ -294,21 +305,20 @@ export default function CompletionDetails() {
                     <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-100">
                       <tr>
                         <th className="px-6 py-4 w-1/3">课程信息</th>
-                        <th className="px-6 py-4">学习热度</th>
+                        <th className="px-6 py-4">课程点赞数</th>
                         <th className="px-6 py-4 w-1/4">完课率</th>
                         <th className="px-6 py-4">平均耗时</th>
-                        <th className="px-6 py-4">评分</th>
                         <th className="px-6 py-4 text-right">操作</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {[
-                        { id: 1, title: 'DeepSeek 高效办公效能跃升', instructor: '王大力', category: 'practical', learners: 850, rate: 92, duration: '45分钟', rating: 4.9 },
-                        { id: 2, title: 'AI 伦理与安全导论', instructor: '张教授', category: 'basic', learners: 1200, rate: 88, duration: '30分钟', rating: 4.7 },
-                        { id: 3, title: 'Midjourney 图像生成进阶', instructor: 'Lisa', category: 'practical', learners: 680, rate: 75, duration: '60分钟', rating: 4.8 },
-                        { id: 4, title: 'Python 数据分析基础', instructor: '李数据', category: 'practical', learners: 520, rate: 65, duration: '90分钟', rating: 4.5 },
-                        { id: 5, title: '元宇宙概念解析', instructor: '陈未来', category: 'basic', learners: 300, rate: 40, duration: '25分钟', rating: 3.8 },
-                        { id: 6, title: '区块链技术底层逻辑', instructor: '赵链', category: 'basic', learners: 150, rate: 35, duration: '50分钟', rating: 3.5 },
+                        { id: 1, title: 'DeepSeek 高效办公效能跃升', category: 'practical', likes: 850, rate: 92, duration: '45分钟' },
+                        { id: 2, title: 'AI 伦理与安全导论', category: 'basic', likes: 1200, rate: 88, duration: '30分钟' },
+                        { id: 3, title: 'Midjourney 图像生成进阶', category: 'practical', likes: 680, rate: 75, duration: '60分钟' },
+                        { id: 4, title: 'Python 数据分析基础', category: 'practical', likes: 520, rate: 65, duration: '90分钟' },
+                        { id: 5, title: '元宇宙概念解析', category: 'basic', likes: 300, rate: 40, duration: '25分钟' },
+                        { id: 6, title: '区块链技术底层逻辑', category: 'basic', likes: 150, rate: 35, duration: '50分钟' },
                       ].map((course) => (
                         <tr key={course.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">
@@ -324,15 +334,14 @@ export default function CompletionDetails() {
                                   }`}>
                                     {course.category === 'basic' ? '基础认知' : '效能跃升技能'}
                                   </span>
-                                  <span className="text-gray-500">{course.instructor}</span>
                                 </div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-1.5 text-gray-900">
-                              <User className="w-4 h-4 text-gray-400" />
-                              <span className="font-medium">{course.learners}</span>
+                              <ThumbsUp className="w-4 h-4 text-red-500" />
+                              <span className="font-medium">{course.likes}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -353,14 +362,8 @@ export default function CompletionDetails() {
                             </div>
                           </td>
                           <td className="px-6 py-4 text-gray-600">{course.duration}</td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-1 text-yellow-500 font-medium">
-                              <span>★</span>
-                              <span>{course.rating}</span>
-                            </div>
-                          </td>
                           <td className="px-6 py-4 text-right">
-                            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">查看详情</button>
+                            <Link to={`/video/${course.id}`} className="text-blue-600 hover:text-blue-800 text-sm font-medium">查看详情</Link>
                           </td>
                         </tr>
                       ))}

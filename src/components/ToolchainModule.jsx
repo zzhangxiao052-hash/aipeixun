@@ -1,4 +1,4 @@
-import { ExternalLink, Copy, Download, FileText, Zap, Check } from 'lucide-react';
+import { ExternalLink, Copy, FileText, Zap, Check } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ToolchainModule() {
@@ -27,15 +27,7 @@ export default function ToolchainModule() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDownload = () => {
-    const element = document.createElement("a");
-    const file = new Blob([prompt], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = "deepseek_prompt_template.txt";
-    document.body.appendChild(element); 
-    element.click();
-    document.body.removeChild(element);
-  };
+
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -116,13 +108,7 @@ export default function ToolchainModule() {
                   </>
                 )}
               </button>
-              <button 
-                onClick={handleDownload}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 hover:bg-gray-50 transition-colors group"
-              >
-                <Download className="w-3.5 h-3.5 text-gray-500 group-hover:text-blue-600" />
-                <span className="text-xs font-medium text-gray-600 group-hover:text-blue-600">.txt 下载</span>
-              </button>
+
             </div>
           </div>
         </div>

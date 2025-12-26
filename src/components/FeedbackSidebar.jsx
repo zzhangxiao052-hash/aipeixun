@@ -18,7 +18,7 @@ export default function FeedbackSidebar() {
   };
 
   return (
-    <div className="fixed right-6 bottom-24 z-50 flex flex-col gap-3">
+    <div className="fixed right-2 bottom-24 z-50 flex flex-col gap-3">
       {/* Demand Collection: "I want to learn" */}
       {/* Contact Us: Hover for QR Code */}
       <div className="relative group">
