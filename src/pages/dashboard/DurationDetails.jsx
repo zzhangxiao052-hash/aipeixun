@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Search, Download, Clock, Smartphone, Monitor, Flame, Medal } from 'lucide-react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ChevronRight, Search, Download, Clock, Medal, Flame } from 'lucide-react';
 
 export default function DurationDetails() {
   // Mock Data
@@ -21,29 +20,20 @@ export default function DurationDetails() {
     { id: 5, name: '孙七', dept: '设计部', totalHours: 88.0, lastLearning: '1周前' },
     { id: 6, name: '周八', dept: '人事部', totalHours: 76.5, lastLearning: '2周前' },
     { id: 7, name: '吴九', dept: '财务部', totalHours: 65.0, lastLearning: '1个月前' },
+    { id: 8, name: '郑十', dept: '研发部', totalHours: 62.5, lastLearning: '2天前' },
+    { id: 9, name: '陈十一', dept: '产品部', totalHours: 58.0, lastLearning: '5小时前' },
+    { id: 10, name: '林十二', dept: '运营部', totalHours: 55.5, lastLearning: '3天前' },
+    { id: 11, name: '黄十三', dept: '市场部', totalHours: 52.0, lastLearning: '1周前' },
+    { id: 12, name: '周十四', dept: '设计部', totalHours: 48.5, lastLearning: '2周前' },
+    { id: 13, name: '吴十五', dept: '人事部', totalHours: 45.0, lastLearning: '1个月前' },
+    { id: 14, name: '郑十六', dept: '财务部', totalHours: 42.5, lastLearning: '2天前' },
+    { id: 15, name: '陈十七', dept: '研发部', totalHours: 38.0, lastLearning: '5小时前' },
+    { id: 16, name: '林十八', dept: '产品部', totalHours: 35.5, lastLearning: '3天前' },
+    { id: 17, name: '黄十九', dept: '运营部', totalHours: 32.0, lastLearning: '1周前' },
+    { id: 18, name: '周二十', dept: '市场部', totalHours: 28.5, lastLearning: '2周前' },
+    { id: 19, name: '吴二一', dept: '设计部', totalHours: 25.0, lastLearning: '1个月前' },
+    { id: 20, name: '郑二二', dept: '人事部', totalHours: 22.5, lastLearning: '2天前' },
   ];
-
-  // Heatmap Data (Simulated)
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  
-  const getHeatmapColor = (dayIndex, hour) => {
-    // Simulate hotter spots: Lunch (12-13), Evening (19-21)
-    let intensity = 0;
-    if ((hour >= 12 && hour <= 13) || (hour >= 19 && hour <= 21)) {
-      intensity = Math.random() * 0.5 + 0.5; // High intensity
-    } else if (hour >= 9 && hour <= 18) {
-      intensity = Math.random() * 0.3 + 0.2; // Medium intensity (work hours)
-    } else {
-      intensity = Math.random() * 0.1; // Low intensity
-    }
-    
-    // Weekend adjustment
-    if (dayIndex >= 5) intensity *= 0.4;
-
-    const alpha = Math.max(0.05, intensity);
-    return `rgba(79, 70, 229, ${alpha})`; // Indigo base
-  };
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] pb-12">
@@ -81,105 +71,25 @@ export default function DurationDetails() {
       </div>
 
       <div className="max-w-[1800px] mx-auto px-4 md:px-14 space-y-6">
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Top Section: Average Duration & Dept Leaderboard */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Average Duration */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-gray-500 mb-2">
-                <Clock className="w-5 h-5" />
-                <span className="text-sm font-medium">人均学习时长</span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-bold text-indigo-600">12.4</span>
-                <span className="text-lg text-gray-400">小时</span>
-              </div>
-              <div className="mt-2 text-sm text-green-600 font-medium">↑ 1.2h 较上周</div>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-gray-500 mb-4">
+              <Clock className="w-5 h-5" />
+              <span className="text-sm font-medium">人均学习时长</span>
             </div>
-            <div className="hidden md:block w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center">
-               <Clock className="w-12 h-12 text-indigo-200" />
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-6xl font-bold text-indigo-600">12.4</span>
+              <span className="text-xl text-gray-400">小时</span>
+            </div>
+            <div className="text-sm text-green-600 font-medium flex items-center gap-1">
+              <span>↑ 1.2h</span>
+              <span className="text-gray-400">较上周</span>
             </div>
           </div>
 
-          {/* PC vs Mobile */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-sm font-medium text-gray-500 mb-6">终端时长占比</h3>
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <div className="flex items-center gap-2">
-                    <Monitor className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700 font-medium">PC 端</span>
-                  </div>
-                  <span className="font-bold text-gray-900">65%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2.5">
-                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '65%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700 font-medium">移动端</span>
-                  </div>
-                  <span className="font-bold text-gray-900">35%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2.5">
-                  <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '35%' }}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Heatmap (60%) */}
-          <div className="lg:col-span-3 bg-white p-6 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900">学习时段热力图</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="w-3 h-3 bg-indigo-100 rounded-sm"></span>
-                <span>闲时</span>
-                <span className="w-3 h-3 bg-indigo-600 rounded-sm ml-2"></span>
-                <span>忙时</span>
-              </div>
-            </div>
-            
-            <div className="min-w-[600px]">
-              {/* X Axis Labels */}
-              <div className="flex ml-12 mb-2">
-                {hours.map(h => (
-                   <div key={h} className="flex-1 text-center text-[10px] text-gray-400">{h}</div>
-                ))}
-              </div>
-              
-              {/* Grid */}
-              <div className="space-y-1">
-                {days.map((day, dayIdx) => (
-                  <div key={day} className="flex items-center h-8">
-                    <div className="w-12 text-xs text-gray-500 font-medium">{day}</div>
-                    <div className="flex-1 flex gap-1 h-full">
-                      {hours.map(hour => (
-                        <div 
-                          key={hour} 
-                          className="flex-1 rounded-sm transition-all hover:scale-110 hover:shadow-sm cursor-pointer relative group"
-                          style={{ backgroundColor: getHeatmapColor(dayIdx, hour) }}
-                        >
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap z-10">
-                            {day} {hour}:00
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Dept Leaderboard (40%) */}
+          {/* Dept Leaderboard */}
           <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-6">部门人均时长排行 (Top 5)</h3>
             <div className="space-y-5">
@@ -210,8 +120,9 @@ export default function DurationDetails() {
 
         {/* Learner Leaderboard Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900">学霸榜单</h3>
+          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-gray-900">学习时长榜单</h3>
+            <div className="text-sm text-gray-500">共 {learnerLeaderboard.length} 位学员</div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -258,6 +169,14 @@ export default function DurationDetails() {
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Pagination (Mock) */}
+          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center text-sm text-gray-500">
+            <div>显示 1 至 {learnerLeaderboard.length} 条，共 {learnerLeaderboard.length} 条</div>
+            <div className="flex gap-2">
+              <button className="px-3 py-1 border border-gray-200 rounded bg-white hover:bg-gray-50 disabled:opacity-50" disabled>上一页</button>
+              <button className="px-3 py-1 border border-gray-200 rounded bg-white hover:bg-gray-50 disabled:opacity-50" disabled>下一页</button>
+            </div>
           </div>
         </div>
       </div>

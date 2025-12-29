@@ -618,12 +618,12 @@ function VisualCockpit() {
     labels: ['智能写作', '数据分析', '自动化办公', 'AI绘图设计', '代码辅助', '知识管理'],
     datasets: [
       {
-        label: '组织技能掌握度',
+        label: '话题热度指数',
         data: [90, 75, 85, 80, 50, 70],
-        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: 'rgba(249, 115, 22, 0.2)',
+        borderColor: 'rgba(249, 115, 22, 1)',
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+        pointBackgroundColor: 'rgba(249, 115, 22, 1)',
       },
     ],
   };
@@ -822,8 +822,8 @@ function VisualCockpit() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">人才技能画像</h3>
-              <p className="text-xs text-gray-500">基于课程观看数据的技能模型</p>
+              <h3 className="text-lg font-bold text-gray-900">关注热度画像</h3>
+              <p className="text-xs text-gray-500">基于全员学习行为的兴趣分布</p>
             </div>
           </div>
           <div className="h-[250px] flex items-center justify-center">
