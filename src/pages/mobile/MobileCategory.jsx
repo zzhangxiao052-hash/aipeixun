@@ -21,7 +21,7 @@ const CATEGORIES = [
     subCategories: ['ChatGPT', 'Claude', 'Llama', 'Prompt'],
     courses: [
       { id: 201, title: 'ChatGPT 高效办公指南', views: '45.1w', cover: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&q=80' },
-      { id: 202, title: 'Prompt 提示词工程进阶', views: '33.4w', cover: 'https://images.unsplash.com/photo-1684469660894-394553555d26?w=400&q=80' }
+      { id: 202, title: 'Prompt 提示词工程进阶', views: '33.4w', cover: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80' }
     ]
   },
   { 
@@ -30,7 +30,7 @@ const CATEGORIES = [
     subCategories: ['Midjourney', 'Stable Diffusion', 'ComfyUI'],
     courses: [
       { id: 301, title: 'Midjourney 商业插画实战', views: '28.9w', cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80' },
-      { id: 302, title: 'Stable Diffusion 部署与训练', views: '19.5w', cover: 'https://images.unsplash.com/photo-1579783902614-a3fb39279c42?w=400&q=80' }
+      { id: 302, title: 'Stable Diffusion 部署与训练', views: '19.5w', cover: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&q=80' }
     ]
   },
   { 
@@ -38,7 +38,7 @@ const CATEGORIES = [
     name: 'AI 视频', 
     subCategories: ['Runway', 'Pika', 'Sora', '剪映 AI'],
     courses: [
-      { id: 401, title: 'Runway 视频生成全攻略', views: '15.2w', cover: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&q=80' },
+      { id: 401, title: 'Runway 视频生成全攻略', views: '15.2w', cover: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&q=80' },
       { id: 402, title: 'AI 短视频制作流', views: '11.8w', cover: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&q=80' }
     ]
   },

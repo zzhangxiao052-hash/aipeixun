@@ -271,23 +271,28 @@ function PermissionManagement() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [users, setUsers] = useState([
-    { id: 1, name: 'Admin User', email: 'admin@example.com', role: '超级管理员', dept: '前端开发组', deptId: 'dev-fe', status: 'active', joinDate: '2023-01-15' },
-    { id: 2, name: '张三', email: 'zhangsan@example.com', role: '普通用户', dept: '市场营销中心', deptId: 'market', status: 'active', joinDate: '2023-03-10' },
-    { id: 3, name: '李四', email: 'lisi@example.com', role: '部门经理', dept: '人力资源部', deptId: 'hr', status: 'inactive', joinDate: '2023-02-20' },
-    { id: 4, name: '王五', email: 'wangwu@example.com', role: '普通用户', dept: 'AI算法组', deptId: 'dev-ai', status: 'active', joinDate: '2023-05-12' },
-    { id: 5, name: '赵六', email: 'zhaoliu@example.com', role: '普通用户', dept: 'UI/UX设计组', deptId: 'prod-design', status: 'active', joinDate: '2023-06-01' },
-    { id: 6, name: '钱七', email: 'qianqi@example.com', role: '高级工程师', dept: '后端开发组', deptId: 'dev-be', status: 'active', joinDate: '2023-04-15' },
+    { id: 1, name: 'Admin User', phone: '13800138000', role: '管理员', dept: '前端开发组', deptId: 'dev-fe', status: 'active', joinDate: '2023-01-15' },
+    { id: 2, name: '张三', phone: '13900139000', role: '普通用户', dept: '市场营销中心', deptId: 'market', status: 'active', joinDate: '2023-03-10' },
+    { id: 3, name: '李四', phone: '13700137000', role: '管理员', dept: '人力资源部', deptId: 'hr', status: 'inactive', joinDate: '2023-02-20' },
+    { id: 4, name: '王五', phone: '13600136000', role: '普通用户', dept: 'AI算法组', deptId: 'dev-ai', status: 'active', joinDate: '2023-05-12' },
+    { id: 5, name: '赵六', phone: '13500135000', role: '普通用户', dept: 'UI/UX设计组', deptId: 'prod-design', status: 'active', joinDate: '2023-06-01' },
+    { id: 6, name: '钱七', phone: '13400134000', role: '高级工程师', dept: '后端开发组', deptId: 'dev-be', status: 'active', joinDate: '2023-04-15' },
   ]);
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    phone: '',
     role: '普通用户',
     dept: '',
     status: 'active'
   });
 
   const [editingId, setEditingId] = useState(null);
+
+  // Cascading Selection State
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [selectedDept, setSelectedDept] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState('');
 
   // --- Helpers ---
   const toggleNode = (nodeId) => {
@@ -354,6 +359,18 @@ function PermissionManagement() {
     return null;
   };
 
+  const findLineage = (nodes, targetId, path = []) => {
+    for (const node of nodes) {
+      const newPath = [...path, node];
+      if (node.id === targetId) return newPath;
+      if (node.children) {
+        const found = findLineage(node.children, targetId, newPath);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const handleAddDeptSubmit = (e) => {
     e.preventDefault();
     if (!newDeptName.trim()) return;
@@ -406,7 +423,7 @@ function PermissionManagement() {
   // For this mock, we'll do a simple text match or "show all" if root.
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          user.email.toLowerCase().includes(searchQuery.toLowerCase());
+                          user.phone.includes(searchQuery);
     
     if (selectedNodeId === 'root') return matchesSearch;
     
@@ -504,20 +521,48 @@ function PermissionManagement() {
   // --- Add/Edit Logic (Simplified for UI Demo) ---
   const handleSaveUser = (e) => {
     e.preventDefault();
+    
+    // Determine the final selected node (Team > Dept > Company)
+    let finalNode = null;
+    if (selectedTeam) {
+      // Find team node
+      const company = orgStructure[0].children.find(c => c.id === selectedCompany);
+      const dept = company?.children.find(d => d.id === selectedDept);
+      finalNode = dept?.children.find(t => t.id === selectedTeam);
+    } else if (selectedDept) {
+      const company = orgStructure[0].children.find(c => c.id === selectedCompany);
+      finalNode = company?.children.find(d => d.id === selectedDept);
+    } else if (selectedCompany) {
+      finalNode = orgStructure[0].children.find(c => c.id === selectedCompany);
+    }
+
+    // If no specific node selected (e.g. only Group), use current selection or default
+    const deptName = finalNode ? finalNode.name : selectedNodeName;
+    const deptId = finalNode ? finalNode.id : selectedNodeId;
+
     if (editingId) {
-      setUsers(users.map(u => u.id === editingId ? { ...u, ...formData } : u));
+      setUsers(users.map(u => u.id === editingId ? { 
+        ...u, 
+        ...formData,
+        dept: deptName,
+        deptId: deptId
+      } : u));
     } else {
       const newUser = {
         id: users.length + 1,
         ...formData,
-        dept: selectedNodeName, // Default to current selection
+        dept: deptName,
+        deptId: deptId,
         joinDate: new Date().toISOString().split('T')[0]
       };
       setUsers([...users, newUser]);
     }
     setIsAddingUser(false);
     setEditingId(null);
-    setFormData({ name: '', email: '', role: '普通用户', dept: '', status: 'active' });
+    setFormData({ name: '', phone: '', role: '普通用户', dept: '', status: 'active' });
+    setSelectedCompany('');
+    setSelectedDept('');
+    setSelectedTeam('');
   };
 
   const handleDeleteUser = (id) => {
@@ -672,7 +717,26 @@ function PermissionManagement() {
             <button 
               onClick={() => {
                 setEditingId(null);
-                setFormData({ name: '', email: '', role: '普通用户', dept: selectedNodeName, status: 'active' });
+                setFormData({ name: '', phone: '', role: '普通用户', dept: selectedNodeName, status: 'active' });
+                
+                // Pre-fill based on current tree selection
+                const lineage = findLineage(orgStructure, selectedNodeId);
+                if (lineage) {
+                  // lineage: [Group, Company, Dept, Team]
+                  if (lineage.length > 1) setSelectedCompany(lineage[1].id);
+                  else setSelectedCompany('');
+                  
+                  if (lineage.length > 2) setSelectedDept(lineage[2].id);
+                  else setSelectedDept('');
+                  
+                  if (lineage.length > 3) setSelectedTeam(lineage[3].id);
+                  else setSelectedTeam('');
+                } else {
+                   setSelectedCompany('');
+                   setSelectedDept('');
+                   setSelectedTeam('');
+                }
+
                 setIsAddingUser(true);
               }}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-medium"
@@ -700,19 +764,71 @@ function PermissionManagement() {
                     <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-gray-700">邮箱</label>
-                    <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <label className="text-sm font-medium text-gray-700">电话号码</label>
+                    <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-gray-700">所属部门</label>
-                    <input type="text" value={formData.dept} readOnly className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed" />
+                  {/* Cascading Selection for Department */}
+                  <div className="col-span-2 grid grid-cols-3 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">所属公司</label>
+                      <select 
+                        value={selectedCompany} 
+                        onChange={e => {
+                          setSelectedCompany(e.target.value);
+                          setSelectedDept('');
+                          setSelectedTeam('');
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                      >
+                        <option value="">请选择公司</option>
+                        {orgStructure[0].children.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">所属部门</label>
+                      <select 
+                        value={selectedDept} 
+                        onChange={e => {
+                          setSelectedDept(e.target.value);
+                          setSelectedTeam('');
+                        }}
+                        disabled={!selectedCompany}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      >
+                        <option value="">请选择部门</option>
+                        {selectedCompany && orgStructure[0].children.find(c => c.id === selectedCompany)?.children.map(d => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">所属小组</label>
+                      <select 
+                        value={selectedTeam} 
+                        onChange={e => setSelectedTeam(e.target.value)}
+                        disabled={!selectedDept}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      >
+                        <option value="">请选择小组</option>
+                        {selectedCompany && selectedDept && 
+                          orgStructure[0].children.find(c => c.id === selectedCompany)
+                            ?.children.find(d => d.id === selectedDept)
+                            ?.children.map(t => (
+                              <option key={t.id} value={t.id}>{t.name}</option>
+                            ))
+                        }
+                      </select>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-gray-700">角色</label>
                     <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
                       <option>普通用户</option>
-                      <option>部门经理</option>
-                      <option>超级管理员</option>
+                      <option>管理员</option>
                     </select>
                   </div>
                 </div>
@@ -751,15 +867,13 @@ function PermissionManagement() {
                           </div>
                           <div>
                             <div className="font-medium text-gray-900">{user.name}</div>
-                            <div className="text-xs text-gray-500">{user.email}</div>
+                            <div className="text-xs text-gray-500">{user.phone}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                          user.role === '超级管理员' 
-                            ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                            : user.role === '部门经理'
+                          user.role === '管理员'
                               ? 'bg-blue-50 text-blue-700 border-blue-100'
                               : 'bg-gray-50 text-gray-600 border-gray-100'
                         }`}>
@@ -787,8 +901,28 @@ function PermissionManagement() {
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={() => {
-                              setFormData({ name: user.name, email: user.email, role: user.role, dept: user.dept, status: user.status });
+                              setFormData({ name: user.name, phone: user.phone, role: user.role, dept: user.dept, status: user.status });
                               setEditingId(user.id);
+                              
+                              // Pre-fill based on user's deptId
+                              if (user.deptId) {
+                                const lineage = findLineage(orgStructure, user.deptId);
+                                if (lineage) {
+                                  if (lineage.length > 1) setSelectedCompany(lineage[1].id);
+                                  else setSelectedCompany('');
+                                  
+                                  if (lineage.length > 2) setSelectedDept(lineage[2].id);
+                                  else setSelectedDept('');
+                                  
+                                  if (lineage.length > 3) setSelectedTeam(lineage[3].id);
+                                  else setSelectedTeam('');
+                                }
+                              } else {
+                                 setSelectedCompany('');
+                                 setSelectedDept('');
+                                 setSelectedTeam('');
+                              }
+                              
                               setIsAddingUser(true);
                             }}
                             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

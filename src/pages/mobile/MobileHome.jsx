@@ -146,9 +146,7 @@ export default function MobileHome() {
                     <Play className="w-3 h-3" />
                     <span>{Math.floor(Math.random() * 10000) + 1000}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span>{course.author}</span>
-                  </div>
+
                 </div>
               </div>
             </div>

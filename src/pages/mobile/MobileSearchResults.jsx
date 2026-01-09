@@ -42,7 +42,7 @@ const MOCK_RESULTS = [
     views: '33.4w', 
     date: '2周前',
     duration: '25:00',
-    cover: 'https://images.unsplash.com/photo-1684469660894-394553555d26?w=400&q=80',
+    cover: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&q=80',
     tags: ['进阶', '提示词']
   },
   { 

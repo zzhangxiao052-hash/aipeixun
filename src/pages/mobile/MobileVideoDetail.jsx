@@ -191,45 +191,127 @@ export default function MobileVideoDetail() {
     setShowVolumeControl(false);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Prevent shortcuts if user is typing in an input
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // Gesture State
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchMove, setTouchMove] = useState(null);
+  const [gestureAction, setGestureAction] = useState(null); // 'seek', 'volume', 'brightness'
+  const [gestureValue, setGestureValue] = useState(null); // Display value for overlay
+  const lastTapRef = useRef(0);
+  const [brightness, setBrightness] = useState(100);
 
-      switch(e.code) {
-        case 'Space':
-          e.preventDefault();
-          togglePlay();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          setCurrentTime(prev => Math.max(0, prev - 5));
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          setCurrentTime(prev => Math.min(duration, prev + 5));
-          break;
-        case 'Escape':
-          if (document.fullscreenElement) {
-             document.exitFullscreen();
-             setIsFullscreen(false);
-          }
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
+  // Handle Touch Gestures
+  const handleTouchStart = (e) => {
+    setTouchStart({
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now(),
+      initialTime: currentTime,
+      initialVolume: volume,
+      initialBrightness: brightness
+    });
     
+    // Double Tap Detection
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      togglePlay();
+      setGestureAction('play-toggle');
+      setTimeout(() => setGestureAction(null), 500);
+    }
+    lastTapRef.current = now;
+  };
+
+  const processGestureMove = (currentX, currentY) => {
+    if (!touchStart || isLocked) return;
+    
+    const deltaX = currentX - touchStart.x;
+    const deltaY = touchStart.y - currentY; // Up is positive
+    
+    setTouchMove({ x: currentX, y: currentY });
+
+    // Determine gesture type if not already set
+    if (!gestureAction) {
+      if (Math.abs(deltaX) > 10 && Math.abs(deltaY) < 10) {
+        setGestureAction('seek');
+      } else if (Math.abs(deltaY) > 10 && Math.abs(deltaX) < 10) {
+        // Left side brightness, Right side volume
+        const screenWidth = window.innerWidth;
+        if (touchStart.x < screenWidth / 2) {
+          setGestureAction('brightness');
+        } else {
+          setGestureAction('volume');
+        }
+      }
+    }
+
+    // Execute Action
+    if (gestureAction === 'seek') {
+      const seekDelta = (deltaX / window.innerWidth) * 180; // 180s max seek per swipe
+      const newTime = Math.max(0, Math.min(duration, touchStart.initialTime + seekDelta));
+      setCurrentTime(newTime);
+      setGestureValue(`${seekDelta > 0 ? '+' : ''}${Math.round(seekDelta)}s`);
+    } else if (gestureAction === 'volume') {
+      const volDelta = (deltaY / window.innerHeight) * 100;
+      const newVol = Math.max(0, Math.min(100, touchStart.initialVolume + volDelta));
+      setVolume(newVol);
+      setGestureValue(`${Math.round(newVol)}%`);
+    } else if (gestureAction === 'brightness') {
+      const brightDelta = (deltaY / window.innerHeight) * 100;
+      const newBright = Math.max(0, Math.min(100, touchStart.initialBrightness + brightDelta));
+      setBrightness(newBright);
+      setGestureValue(`${Math.round(newBright)}%`);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    processGestureMove(e.touches[0].clientX, e.touches[0].clientY);
+  };
+
+  // Mouse Handlers for PC Testing
+  const handleMouseDown = (e) => {
+    setTouchStart({
+      x: e.clientX,
+      y: e.clientY,
+      time: Date.now(),
+      initialTime: currentTime,
+      initialVolume: volume,
+      initialBrightness: brightness
+    });
+    
+    // Double Click Detection
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      togglePlay();
+      setGestureAction('play-toggle');
+      setTimeout(() => setGestureAction(null), 500);
+    }
+    lastTapRef.current = now;
+  };
+
+  const handleMouseMove = (e) => {
+    if (e.buttons === 0) {
+      if (touchStart) handleTouchEnd();
+      return;
+    }
+    processGestureMove(e.clientX, e.clientY);
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStart(null);
+    setTouchMove(null);
+    setGestureAction(null);
+    setGestureValue(null);
+    resetControlTimeout();
+  };
+
+  useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
-  }, [isPlaying, duration]); // Dependencies for closure values
+  }, []);
 
   useEffect(() => {
     let interval;
@@ -281,16 +363,23 @@ export default function MobileVideoDetail() {
         {/* 沉浸式播放器区域 */}
         <div 
           ref={videoContainerRef}
-          className={`w-full bg-black relative shadow-lg overflow-hidden group ${isFullscreen ? 'fixed inset-0 z-[100] h-screen' : 'aspect-video'}`}
+          className={`w-full bg-black relative shadow-lg overflow-hidden group select-none ${isFullscreen ? 'fixed inset-0 z-[100] h-screen' : 'aspect-video'}`}
           onClick={handleInteraction}
-          onMouseMove={handleInteraction}
-          onTouchStart={handleInteraction}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleTouchEnd}
+          onMouseLeave={handleTouchEnd}
+          style={{ filter: `brightness(${brightness}%)` }}
         >
           {/* 视频背景 (模拟) */}
           <img 
             src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
             className={`absolute inset-0 w-full h-full transition-all duration-300 ${isFullscreen ? 'object-contain' : 'object-cover'} opacity-80`}
             alt="Video Cover"
+            draggable="false"
           />
 
           {/* 顶部轮播简介 (仅全屏显示) */}
@@ -373,6 +462,20 @@ export default function MobileVideoDetail() {
                   {dm.text}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Gesture Feedback Overlay */}
+          {gestureAction && gestureValue && (
+            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+              <div className="bg-black/60 backdrop-blur-sm px-6 py-3 rounded-xl text-white font-bold text-xl flex items-center gap-3">
+                {gestureAction === 'volume' && <Volume2 className="w-6 h-6" />}
+                {gestureAction === 'brightness' && <div className="w-6 h-6 border-2 border-white rounded-full border-dashed animate-spin-slow" />}
+                {gestureAction === 'seek' && (gestureValue.includes('+') ? <div className="rotate-0">⏩</div> : <div className="rotate-180">⏩</div>)}
+                {gestureAction === 'play-toggle' && (isPlaying ? <Play className="w-8 h-8 fill-white"/> : <Pause className="w-8 h-8 fill-white"/>)}
+                <span>{gestureValue}</span>
+                {gestureAction === 'seek' && <span className="text-sm font-normal opacity-80 ml-2">{formatTime(currentTime)}</span>}
+              </div>
             </div>
           )}
 
@@ -979,7 +1082,7 @@ function CommentItem({ comment }) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className={`text-sm font-medium ${comment.user.isVip ? 'text-pink-500' : 'text-gray-600'}`}>
+          <span className={`text-sm font-medium ${comment.user.isVip ? 'text-blue-600' : 'text-gray-600'}`}>
             {comment.user.name}
           </span>
         </div>
