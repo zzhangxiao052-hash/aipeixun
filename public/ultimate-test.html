@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>🚨 终极测试 - 直接删除</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #dc2626;
+      margin-bottom: 30px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .danger {
+      background: #dc2626;
+    }
+    .danger:hover {
+      background: #b91c1c;
+    }
+    .success {
+      background: #16a34a;
+    }
+    .success:hover {
+      background: #15803d;
+    }
+    .output {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .highlight {
+      color: #fbbf24;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚨 终极测试 - 直接操作 localStorage</h1>
+    
+    <div style="margin-bottom: 30px;">
+      <h2>步骤 1: 查看当前数据</h2>
+      <button onclick="viewData()">📊 查看所有收藏</button>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <h2>步骤 2: 删除 videoId=201</h2>
+      <button onclick="deleteVideo201()" class="danger">🗑️ 删除 videoId 201</button>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <h2>步骤 3: 清理所有重复数据</h2>
+      <button onclick="cleanupDuplicates()" class="success">🧹 清理重复项</button>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <h2>步骤 4: 完全重置</h2>
+      <button onclick="resetAll()" class="danger">💣 清空所有收藏</button>
+    </div>
+
+    <div id="output" class="output">等待操作...</div>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function log(message, isHighlight = false) {
+      const line = document.createElement('div');
+      if (isHighlight) {
+        line.className = 'highlight';
+      }
+      line.textContent = message;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearOutput() {
+      output.innerHTML = '';
+    }
+
+    function viewData() {
+      clearOutput();
+      log('='.repeat(50), true);
+      log('📊 查看当前收藏数据', true);
+      log('='.repeat(50), true);
+      
+      try {
+        const data = localStorage.getItem('user_assets');
+        
+        if (!data) {
+          log('\n❌ localStorage 中没有数据');
+          return;
+        }
+        
+        const bookmarks = JSON.parse(data);
+        log(`\n✅ 找到 ${bookmarks.length} 个收藏\n`);
+        
+        bookmarks.forEach((b, i) => {
+          log(`${i + 1}. ${b.title}`);
+          log(`   id: ${b.id} (${typeof b.id})`);
+          log(`   videoId: ${b.videoId} (${typeof b.videoId})`);
+          log(`   folder: ${b.folder || '默认'}`);
+          log('');
+        });
+        
+        // 统计 videoId=201 的数量
+        const count201 = bookmarks.filter(b => String(b.videoId) === '201').length;
+        log(`\n📌 videoId=201 的收藏数量: ${count201}`, true);
+        
+      } catch (error) {
+        log(`\n❌ 错误: ${error.message}`);
+      }
+    }
+
+    function deleteVideo201() {
+      clearOutput();
+      log('='.repeat(50), true);
+      log('🗑️ 删除 videoId=201', true);
+      log('='.repeat(50), true);
+      
+      try {
+        const data = localStorage.getItem('user_assets');
+        
+        if (!data) {
+          log('\n❌ 没有数据可删除');
+          return;
+        }
+        
+        const bookmarks = JSON.parse(data);
+        log(`\n删除前: ${bookmarks.length} 个收藏`);
+        
+        // 查找所有 videoId=201 的收藏
+        const targets = bookmarks.filter(b => String(b.videoId) === '201');
+        log(`找到 ${targets.length} 个 videoId=201 的收藏:`);
+        targets.forEach(t => {
+          log(`  - id: ${t.id}, title: ${t.title}`);
+        });
+        
+        // 删除
+        const updated = bookmarks.filter(b => String(b.videoId) !== '201');
+        log(`\n删除后: ${updated.length} 个收藏`);
+        log(`删除了 ${bookmarks.length - updated.length} 个收藏`, true);
+        
+        // 保存
+        localStorage.setItem('user_assets', JSON.stringify(updated));
+        log('\n✅ 已保存到 localStorage', true);
+        
+        // 验证
+        const verify = JSON.parse(localStorage.getItem('user_assets'));
+        const stillHas201 = verify.some(b => String(b.videoId) === '201');
+        log(`\n验证: 是否还有 videoId=201? ${stillHas201 ? '是 ❌' : '否 ✅'}`, true);
+        
+        if (!stillHas201) {
+          log('\n🎉 删除成功!请刷新主页面查看效果', true);
+        }
+        
+      } catch (error) {
+        log(`\n❌ 错误: ${error.message}`);
+      }
+    }
+
+    function cleanupDuplicates() {
+      clearOutput();
+      log('='.repeat(50), true);
+      log('🧹 清理重复数据', true);
+      log('='.repeat(50), true);
+      
+      try {
+        const data = localStorage.getItem('user_assets');
+        
+        if (!data) {
+          log('\n❌ 没有数据');
+          return;
+        }
+        
+        const bookmarks = JSON.parse(data);
+        log(`\n清理前: ${bookmarks.length} 个收藏`);
+        
+        // 按 videoId 去重
+        const uniqueMap = new Map();
+        bookmarks.forEach(b => {
+          const id = String(b.videoId);
+          if (!uniqueMap.has(id)) {
+            uniqueMap.set(id, b);
+          }
+        });
+        
+        const unique = Array.from(uniqueMap.values());
+        log(`清理后: ${unique.length} 个收藏`);
+        log(`删除了 ${bookmarks.length - unique.length} 个重复项`, true);
+        
+        // 保存
+        localStorage.setItem('user_assets', JSON.stringify(unique));
+        log('\n✅ 已保存到 localStorage', true);
+        log('\n🎉 清理完成!请刷新主页面查看效果', true);
+        
+      } catch (error) {
+        log(`\n❌ 错误: ${error.message}`);
+      }
+    }
+
+    function resetAll() {
+      if (!confirm('⚠️ 确定要清空所有收藏吗?这个操作不可恢复!')) {
+        return;
+      }
+      
+      clearOutput();
+      log('='.repeat(50), true);
+      log('💣 清空所有收藏', true);
+      log('='.repeat(50), true);
+      
+      try {
+        const data = localStorage.getItem('user_assets');
+        const count = data ? JSON.parse(data).length : 0;
+        
+        localStorage.setItem('user_assets', '[]');
+        log(`\n✅ 已删除 ${count} 个收藏`, true);
+        log('\n🎉 localStorage 已重置!', true);
+        
+      } catch (error) {
+        log(`\n❌ 错误: ${error.message}`);
+      }
+    }
+
+    // 自动显示数据
+    viewData();
+  </script>
+</body>
+</html>
