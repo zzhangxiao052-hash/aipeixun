@@ -12,7 +12,30 @@ const mockHistoryData = [
     lastTimestamp: 1224, // Last paused at 1224 seconds
     totalDuration: 2720, // Total duration in seconds
     lastWatched: "2小时前",
-    remainingTime: "剩余 25分钟"
+    remainingTime: "剩余 25分钟",
+    group: "今天"
+  },
+  {
+    id: 202,
+    title: "AI 辅助编程：GitHub Copilot 实战技巧",
+    cover: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&q=80",
+    progress: 15,
+    lastTimestamp: 300,
+    totalDuration: 1800,
+    lastWatched: "4小时前",
+    remainingTime: "剩余 25分钟",
+    group: "今天"
+  },
+  {
+    id: 203,
+    title: "Stable Diffusion 本地部署与模型微调教程",
+    cover: "https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800&q=80",
+    progress: 5,
+    lastTimestamp: 100,
+    totalDuration: 2000,
+    lastWatched: "5小时前",
+    remainingTime: "剩余 31分钟",
+    group: "今天"
   },
   {
     id: 102,
@@ -22,7 +45,30 @@ const mockHistoryData = [
     lastTimestamp: 600,
     totalDuration: 750,
     lastWatched: "昨天",
-    remainingTime: "剩余 2分钟"
+    remainingTime: "剩余 2分钟",
+    group: "昨天"
+  },
+  {
+    id: 105,
+    title: "Python 数据分析基础：Pandas 与 NumPy",
+    cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+    progress: 30,
+    lastTimestamp: 900,
+    totalDuration: 3000,
+    lastWatched: "昨天",
+    remainingTime: "剩余 35分钟",
+    group: "昨天"
+  },
+  {
+    id: 106,
+    title: "机器学习算法导论：从线性回归到支持向量机",
+    cover: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?w=800&q=80",
+    progress: 60,
+    lastTimestamp: 1800,
+    totalDuration: 3000,
+    lastWatched: "昨天",
+    remainingTime: "剩余 20分钟",
+    group: "昨天"
   },
   {
     id: 103,
@@ -32,17 +78,41 @@ const mockHistoryData = [
     lastTimestamp: 120,
     totalDuration: 1200,
     lastWatched: "3天前",
-    remainingTime: "剩余 18分钟"
+    remainingTime: "剩余 18分钟",
+    group: "更早"
   },
   {
     id: 104,
     title: "数字化办公：Excel 中的 AI 技巧",
-    cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+    cover: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80",
     progress: 95,
     lastTimestamp: 570,
     totalDuration: 600,
     lastWatched: "1周前",
-    remainingTime: "剩余 30秒"
+    remainingTime: "剩余 30秒",
+    group: "更早"
+  },
+  {
+    id: 107,
+    title: "深度学习框架 PyTorch 入门实战",
+    cover: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
+    progress: 20,
+    lastTimestamp: 600,
+    totalDuration: 3000,
+    lastWatched: "2周前",
+    remainingTime: "剩余 40分钟",
+    group: "更早"
+  },
+  {
+    id: 108,
+    title: "自然语言处理 NLP 基础与大模型原理",
+    cover: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80",
+    progress: 50,
+    lastTimestamp: 1500,
+    totalDuration: 3000,
+    lastWatched: "1个月前",
+    remainingTime: "剩余 25分钟",
+    group: "更早"
   }
 ];
 
@@ -55,6 +125,23 @@ export default function HistoryPage() {
       setHistory([]);
     }
   };
+
+  const handleDeleteItem = (e, id) => {
+    e.stopPropagation(); // Prevent card click
+    if (window.confirm('确定要删除这条观看记录吗？')) {
+      setHistory(history.filter(item => item.id !== id));
+    }
+  };
+
+  // Group history by 'group' field
+  const groupedHistory = history.reduce((acc, item) => {
+    const group = item.group || '更早';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(item);
+    return acc;
+  }, {});
+
+  const groupOrder = ['今天', '昨天', '更早'];
 
   return (
     <div className="max-w-[1800px] mx-auto px-4 md:px-14 py-8">
@@ -78,12 +165,31 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {/* Grid Layout */}
+      {/* Grouped Grid Layout */}
       {history.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {history.map((item) => (
-            <HistoryCard key={item.id} item={item} />
-          ))}
+        <div className="space-y-12">
+          {groupOrder.map(group => {
+            const items = groupedHistory[group];
+            if (!items || items.length === 0) return null;
+            
+            return (
+              <div key={group}>
+                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                  {group}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {items.map((item) => (
+                    <HistoryCard 
+                      key={item.id} 
+                      item={item} 
+                      onDelete={(e) => handleDeleteItem(e, item.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -101,7 +207,7 @@ export default function HistoryPage() {
   );
 }
 
-function HistoryCard({ item }) {
+function HistoryCard({ item, onDelete }) {
   const navigate = useNavigate();
 
   // Resume Play Logic
@@ -129,7 +235,7 @@ function HistoryCard({ item }) {
   return (
     <div 
       onClick={handleCardClick}
-      className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
+      className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 relative"
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-video bg-gray-100 overflow-hidden">
@@ -145,6 +251,15 @@ function HistoryCard({ item }) {
             <Play className="w-5 h-5 text-blue-600 ml-1" fill="currentColor" />
           </div>
         </div>
+
+        {/* Delete Button (Top Right) */}
+        <button
+          onClick={onDelete}
+          className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 z-10"
+          title="删除记录"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
 
         {/* Progress Bar */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/30">

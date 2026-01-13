@@ -22,6 +22,21 @@ export default function MobileSearch() {
     { id: 8, title: 'Copilot 编程助手', hot: '28.4w' },
   ];
 
+  const MOCK_SUGGESTIONS = [
+    'DeepSeek 基础教程',
+    'DeepSeek 本地部署',
+    'DeepSeek vs ChatGPT',
+    'AI 绘画入门',
+    'AI 绘画进阶',
+    'Stable Diffusion 模型训练',
+    'Midjourney 提示词大全',
+    'Python 数据分析',
+    'Python 机器学习',
+    '大模型应用开发',
+    'RAG 企业级实战',
+    'Agent 智能体开发'
+  ];
+
   useEffect(() => {
     // Auto focus input on mount
     if (inputRef.current) {
@@ -82,57 +97,82 @@ export default function MobileSearch() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Search History */}
-        {searchHistory.length > 0 && (
-          <div className="px-4 py-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-sm font-bold text-gray-800">历史搜索</h3>
-              <button onClick={clearHistory} className="p-1">
-                <Trash2 className="w-4 h-4 text-gray-400" />
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {searchHistory.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSearch(item)}
-                  className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs rounded-lg active:bg-gray-100 transition-colors truncate max-w-[150px]"
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Hot Search */}
-        <div className="px-4 py-2">
-          <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
-            <Flame className="w-4 h-4 text-red-500 fill-current" />
-            热门搜索
-          </h3>
-          <div className="space-y-4">
-            {hotSearches.map((item, index) => (
-              <div 
-                key={item.id}
-                onClick={() => handleSearch(item.title)}
-                className="flex items-center gap-3 active:bg-gray-50 -mx-4 px-4 py-1 cursor-pointer"
+        {searchText.trim() ? (
+          /* Search Suggestions */
+          <div className="px-4 py-2">
+            {MOCK_SUGGESTIONS.filter(s => s.toLowerCase().includes(searchText.toLowerCase())).map((item, index) => (
+              <div
+                key={index}
+                onClick={() => handleSearch(item)}
+                className="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0 active:bg-gray-50 cursor-pointer"
               >
-                <span className={`
-                  w-5 text-center text-sm font-bold italic
-                  ${index === 0 ? 'text-red-500' : ''}
-                  ${index === 1 ? 'text-orange-500' : ''}
-                  ${index === 2 ? 'text-yellow-500' : ''}
-                  ${index > 2 ? 'text-gray-400' : ''}
-                `}>
-                  {index + 1}
-                </span>
-                <span className="flex-1 text-sm text-gray-700">{item.title}</span>
-                <span className="text-xs text-gray-400">{item.hot}</span>
+                <Search className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-700" dangerouslySetInnerHTML={{
+                  __html: item.replace(new RegExp(searchText, 'gi'), (match) => `<span class="text-blue-600 font-medium">${match}</span>`)
+                }} />
               </div>
             ))}
+            {MOCK_SUGGESTIONS.filter(s => s.toLowerCase().includes(searchText.toLowerCase())).length === 0 && (
+               <div className="py-4 text-center text-gray-400 text-sm">
+                 暂无相关搜索建议
+               </div>
+            )}
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Search History */}
+            {searchHistory.length > 0 && (
+              <div className="px-4 py-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-bold text-gray-800">历史搜索</h3>
+                  <button onClick={clearHistory} className="p-1">
+                    <Trash2 className="w-4 h-4 text-gray-400" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {searchHistory.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSearch(item)}
+                      className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs rounded-lg active:bg-gray-100 transition-colors truncate max-w-[150px]"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Hot Search */}
+            <div className="px-4 py-2">
+              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
+                <Flame className="w-4 h-4 text-red-500 fill-current" />
+                热门搜索
+              </h3>
+              <div className="space-y-4">
+                {hotSearches.map((item, index) => (
+                  <div 
+                    key={item.id}
+                    onClick={() => handleSearch(item.title)}
+                    className="flex items-center gap-3 active:bg-gray-50 -mx-4 px-4 py-1 cursor-pointer"
+                  >
+                    <span className={`
+                      w-5 text-center text-sm font-bold italic
+                      ${index === 0 ? 'text-red-500' : ''}
+                      ${index === 1 ? 'text-orange-500' : ''}
+                      ${index === 2 ? 'text-yellow-500' : ''}
+                      ${index > 2 ? 'text-gray-400' : ''}
+                    `}>
+                      {index + 1}
+                    </span>
+                    <span className="flex-1 text-sm text-gray-700">{item.title}</span>
+                    <span className="text-xs text-gray-400">{item.hot}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

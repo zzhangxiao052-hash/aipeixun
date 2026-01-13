@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Play, Clock, TrendingUp, Star, Zap, Globe, PenTool, Bell } from 'lucide-react';
 import MobileNav from './MobileNav';
@@ -10,6 +10,38 @@ import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS } from 
 export default function MobileHome() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const banners = [
+    {
+      id: 1,
+      title: "开启你的 AI \n学习之旅",
+      subtitle: "专家经验转化为标准化方法论",
+      image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      color: "from-blue-900/90 to-purple-900/40"
+    },
+    {
+      id: 2,
+      title: "探索 AI 的\n无限可能",
+      subtitle: "从基础到进阶的全方位课程",
+      image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      color: "from-indigo-900/90 to-blue-900/40"
+    },
+    {
+      id: 3,
+      title: "实战案例\n深度解析",
+      subtitle: "掌握 AI 在实际场景中的应用",
+      image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      color: "from-purple-900/90 to-pink-900/40"
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const categories = [
     { id: 'all', label: '推荐' },
@@ -79,21 +111,41 @@ export default function MobileHome() {
       {/* Banner 区域 */}
       <div className="px-4 py-3">
         <div className="w-full h-40 rounded-2xl relative overflow-hidden shadow-lg group">
-          <img 
-            src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-            alt="Banner" 
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-purple-900/40 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {banners.map((banner, index) => (
+            <div 
+              key={banner.id}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                currentBanner === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              <img 
+                src={banner.image} 
+                alt={banner.title} 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-r ${banner.color} mix-blend-multiply`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              <div className="relative z-10 h-full flex flex-col justify-center px-6 text-white">
+                <h2 className="text-xl font-bold mb-1 leading-tight whitespace-pre-line">{banner.title}</h2>
+                <p className="text-xs text-gray-200 mb-3 opacity-90 line-clamp-1">{banner.subtitle}</p>
+                <button className="self-start px-4 py-1.5 bg-white text-blue-900 text-xs font-bold rounded-full hover:bg-blue-50 transition-colors shadow-lg shadow-blue-900/20">
+                  立即开始
+                </button>
+              </div>
+            </div>
+          ))}
           
-          <div className="relative z-10 h-full flex flex-col justify-center px-6 text-white">
-
-            <h2 className="text-xl font-bold mb-1 leading-tight">开启你的 AI <br/>学习之旅</h2>
-            <p className="text-xs text-gray-200 mb-3 opacity-90 line-clamp-1">专家经验转化为标准化方法论</p>
-            <button className="self-start px-4 py-1.5 bg-white text-blue-900 text-xs font-bold rounded-full hover:bg-blue-50 transition-colors shadow-lg shadow-blue-900/20">
-              立即开始
-            </button>
+          {/* Indicators */}
+          <div className="absolute bottom-3 left-6 z-20 flex gap-1.5">
+            {banners.map((_, index) => (
+              <div 
+                key={index}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  currentBanner === index ? 'bg-white w-3' : 'bg-white/50'
+                }`}
+              />
+            ))}
           </div>
         </div>
       </div>

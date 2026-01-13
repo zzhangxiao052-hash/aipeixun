@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
 
 export default function BookmarkModal({ onClose, videoInfo, onConfirm }) {
-  const [folders, setFolders] = useState(['我的技巧库 (默认)', '公文写作', '数据分析']);
+  const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState('我的技巧库 (默认)');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -10,6 +10,29 @@ export default function BookmarkModal({ onClose, videoInfo, onConfirm }) {
   const [tags, setTags] = useState(['大模型', '写作', '效率']);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [newTagValue, setNewTagValue] = useState('');
+
+  // Load folders
+  useEffect(() => {
+    const loadFolders = () => {
+      const savedFolders = localStorage.getItem('user_folders');
+      if (savedFolders) {
+        setFolders(JSON.parse(savedFolders));
+      } else {
+        const defaultFolders = ['我的技巧库 (默认)', '公文写作', '数据分析'];
+        setFolders(defaultFolders);
+        localStorage.setItem('user_folders', JSON.stringify(defaultFolders));
+      }
+    };
+    loadFolders();
+
+    // Listen for folder changes from other components
+    const handleFolderChange = (e) => {
+      if (e.detail) setFolders(e.detail);
+      else loadFolders();
+    };
+    window.addEventListener('folders-changed', handleFolderChange);
+    return () => window.removeEventListener('folders-changed', handleFolderChange);
+  }, []);
 
   // Handle Folder Selection
   const handleFolderChange = (e) => {
@@ -47,6 +70,15 @@ export default function BookmarkModal({ onClose, videoInfo, onConfirm }) {
   const handleSave = () => {
     const finalFolder = isCreatingFolder ? (newFolderName.trim() || '新建收藏夹') : selectedFolder;
     
+    // Save new folder if created
+    if (isCreatingFolder && newFolderName.trim() && !folders.includes(newFolderName.trim())) {
+      const newFolders = [...folders, newFolderName.trim()];
+      setFolders(newFolders);
+      localStorage.setItem('user_folders', JSON.stringify(newFolders));
+      // Dispatch event
+      window.dispatchEvent(new CustomEvent('folders-changed', { detail: newFolders }));
+    }
+
     // Construct the new asset object
     const newAsset = {
       id: Date.now(),
@@ -85,10 +117,6 @@ export default function BookmarkModal({ onClose, videoInfo, onConfirm }) {
       window.dispatchEvent(new CustomEvent('bookmarks-changed'));
       console.log('📢 已触发 bookmarks-changed 事件');
       
-      // Also save custom folders if needed (optional, for persistence of folder list)
-      if (isCreatingFolder && newFolderName.trim()) {
-         // In a real app we'd save the folder list too
-      }
     } catch (error) {
       console.error("Failed to save bookmark:", error);
     }

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Heart, Share2, MessageSquare, Star, ThumbsUp, Send, PlayCircle, X, MoreHorizontal, Play, Pause, Maximize, Minimize, Lock, Unlock, Plus, Check, Folder, Volume2, Settings2 } from 'lucide-react';
 import useBookmarks from '../../hooks/useBookmarks';
 
@@ -9,6 +9,19 @@ export default function MobileVideoDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
+
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const t = searchParams.get('t');
+    if (t) {
+      const seekTime = parseInt(t, 10);
+      if (!isNaN(seekTime)) {
+        setCurrentTime(seekTime);
+        setIsPlaying(true);
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (location.state?.highlightCommentId) {
@@ -31,12 +44,32 @@ export default function MobileVideoDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const { isBookmarked, addBookmark, removeBookmark, bookmarks } = useBookmarks(id);
   const [showFavoriteDrawer, setShowFavoriteDrawer] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState('默认收藏夹');
+  const [folders, setFolders] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState('我的技巧库 (默认)');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderInput, setNewFolderInput] = useState('');
-  
-  // Derive unique folders from existing bookmarks
-  const existingFolders = ['默认收藏夹', ...new Set(bookmarks.map(b => b.folder).filter(f => f && f !== '默认收藏夹'))];
+
+  // Load folders
+  useEffect(() => {
+    const loadFolders = () => {
+      const savedFolders = localStorage.getItem('user_folders');
+      if (savedFolders) {
+        setFolders(JSON.parse(savedFolders));
+      } else {
+        const defaultFolders = ['我的技巧库 (默认)', '公文写作', '数据分析'];
+        setFolders(defaultFolders);
+        localStorage.setItem('user_folders', JSON.stringify(defaultFolders));
+      }
+    };
+    loadFolders();
+
+    const handleFolderChange = (e) => {
+      if (e.detail) setFolders(e.detail);
+      else loadFolders();
+    };
+    window.addEventListener('folders-changed', handleFolderChange);
+    return () => window.removeEventListener('folders-changed', handleFolderChange);
+  }, []);
 
   const handleFavoriteClick = () => {
     if (isBookmarked) {
@@ -47,7 +80,16 @@ export default function MobileVideoDetail() {
   };
 
   const confirmFavorite = () => {
-    const folder = isCreatingFolder ? (newFolderInput.trim() || '默认收藏夹') : selectedFolder;
+    const folder = isCreatingFolder ? (newFolderInput.trim() || '我的技巧库 (默认)') : selectedFolder;
+    
+    // Save new folder if created
+    if (isCreatingFolder && newFolderInput.trim() && !folders.includes(newFolderInput.trim())) {
+      const newFolders = [...folders, newFolderInput.trim()];
+      setFolders(newFolders);
+      localStorage.setItem('user_folders', JSON.stringify(newFolders));
+      window.dispatchEvent(new CustomEvent('folders-changed', { detail: newFolders }));
+    }
+
     addBookmark({
       videoId: id,
       title: '2025最新AI大模型全栈工程师实战课程：从零基础到独立开发 Agent',
@@ -129,7 +171,7 @@ export default function MobileVideoDetail() {
     if (isPlaying) {
       controlTimeoutRef.current = setTimeout(() => {
         setShowControls(false);
-      }, 2000);
+      }, 3000);
     }
   };
 
@@ -898,7 +940,7 @@ export default function MobileVideoDetail() {
             
             <div className="p-4 overflow-y-auto">
               <div className="space-y-2">
-                {existingFolders.map((folder) => (
+                {folders.map((folder) => (
                   <button
                     key={folder}
                     onClick={() => {

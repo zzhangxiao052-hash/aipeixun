@@ -24,6 +24,7 @@ import CoverageDetails from './pages/dashboard/CoverageDetails';
 import DurationDetails from './pages/dashboard/DurationDetails';
 import CompletionDetails from './pages/dashboard/CompletionDetails';
 import ResourceDetails from './pages/dashboard/ResourceDetails';
+import PCSearchResults from './pages/PCSearchResults';
 import { initializeUserPoints } from './utils/initPoints';
 
 // Mobile Pages
@@ -76,6 +77,7 @@ function AppContent() {
           <Route path="/dashboard/duration" element={<DurationDetails />} />
           <Route path="/dashboard/completion" element={<CompletionDetails />} />
           <Route path="/dashboard/resource-usage" element={<ResourceDetails />} />
+          <Route path="/search" element={<PCSearchResults />} />
           
           {/* Mobile Routes */}
           <Route path="/mobile" element={<MobileHome />} />

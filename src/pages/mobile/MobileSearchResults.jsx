@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ArrowLeft, Filter, Play, Clock, MoreVertical } from 'lucide-react';
+import { Search, ArrowLeft, Filter, Play, Clock, MoreVertical, Flame } from 'lucide-react';
 import MobileStatusBar from './MobileStatusBar';
 
 // Mock Data for Search Results
@@ -70,20 +70,41 @@ export default function MobileSearchResults() {
   // Simulate search API call
   useEffect(() => {
     setIsLoading(true);
-    // Simulate network delay
     const timer = setTimeout(() => {
-      // Simple mock filter
-      const filtered = MOCK_RESULTS.filter(item => 
+      // 1. Filter
+      let filtered = MOCK_RESULTS.filter(item => 
         item.title.toLowerCase().includes(searchText.toLowerCase()) || 
         item.author.includes(searchText)
       );
-      // If no text, show all for demo purposes, or show none
-      setResults(searchText ? filtered : MOCK_RESULTS);
+
+      // If no text, show all (or none, depending on requirement, but usually show all for demo)
+      if (!searchText) filtered = MOCK_RESULTS;
+
+      // 2. Sort
+      const sorted = [...filtered].sort((a, b) => {
+        if (activeTab === 'newest') {
+          // Parse date: smaller number of days = newer
+          const getDays = (str) => {
+            if (str.includes('天前')) return parseInt(str);
+            if (str.includes('周前')) return parseInt(str) * 7;
+            if (str.includes('个月前')) return parseInt(str) * 30;
+            return 999;
+          };
+          return getDays(a.date) - getDays(b.date);
+        } else if (activeTab === 'most_viewed') {
+          // Parse views: larger number = more viewed
+          const getViews = (str) => parseFloat(str.replace('w', '')) * 10000;
+          return getViews(b.views) - getViews(a.views);
+        }
+        return 0; // comprehensive: default order
+      });
+
+      setResults(sorted);
       setIsLoading(false);
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [searchText]); // Re-run when searchText changes (in real app, might wait for enter)
+  }, [searchText, activeTab]);
 
   const handleSearch = () => {
     // In a real app, this would trigger a new API call or navigation
@@ -203,10 +224,60 @@ export default function MobileSearchResults() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-10 text-gray-400">
             <Search className="w-12 h-12 mb-2 opacity-20" />
             <p>未找到相关课程</p>
-            <p className="text-xs mt-1">换个关键词试试看</p>
+            <p className="text-xs mt-1 mb-8">换个关键词试试看</p>
+            
+            {/* Recommended for you (No Results State) */}
+            <div className="w-full px-4 text-left">
+              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
+                <Flame className="w-4 h-4 text-red-500 fill-current" />
+                热门推荐
+              </h3>
+              <div className="space-y-4">
+                {MOCK_RESULTS.slice(0, 3).map((item) => (
+                  <div 
+                    key={item.id}
+                    onClick={() => navigate(`/mobile/video/${item.id}`)}
+                    className="flex gap-3 bg-white p-3 rounded-xl shadow-sm active:scale-[0.99] transition-transform"
+                  >
+                    <div className="w-36 h-24 rounded-lg overflow-hidden bg-gray-100 relative flex-shrink-0">
+                      <img 
+                        src={item.cover} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1 rounded">
+                        {item.duration}
+                      </div>
+                    </div>
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-800 line-clamp-2 leading-snug mb-1">
+                          {item.title}
+                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-gray-500 flex items-center gap-1">
+                            <span className="w-4 h-4 rounded-full bg-gray-200 inline-block" />
+                            {item.author}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Play className="w-3 h-3" />
+                            {item.views}
+                          </span>
+                          <span>{item.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

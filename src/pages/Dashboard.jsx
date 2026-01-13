@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
 
 
-import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS, FEATURED_REVIEWS } from '../data/mockData';
+import { RECOMMENDED_VIDEOS, COGNITIVE_VIDEOS, SKILL_VIDEOS, LIFE_VIDEOS } from '../data/mockData';
 
 export default function Dashboard() {
   return (
@@ -63,42 +63,7 @@ export default function Dashboard() {
           categoryKey="life"
         />
 
-        {/* --- 6. Featured Reviews (精彩评价) --- */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">精彩评价</h2>
-            <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded font-bold">学员热评</span>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {FEATURED_REVIEWS.map(review => (
-              <Link 
-                key={review.id} 
-                to={`/video/${review.videoId}`}
-                className="group bg-white p-5 rounded-xl border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full bg-gray-100" />
-                  <div>
-                    <div className="font-bold text-gray-800 text-sm">{review.user}</div>
-                    <div className="text-xs text-gray-500">{review.role}</div>
-                  </div>
-                </div>
-                
-                <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-3">
-                  "{review.content}"
-                </p>
-
-                <div className="pt-4 border-t border-gray-50 mt-auto">
-                  <div className="flex items-center justify-between text-xs group-hover:text-blue-600 transition-colors">
-                    <span className="text-gray-400">来自课程</span>
-                    <span className="font-medium truncate max-w-[150px]">《{review.videoTitle}》</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );
