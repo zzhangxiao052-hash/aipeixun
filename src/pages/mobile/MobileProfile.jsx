@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Star, MessageSquare, Users, LogOut, Bell, ChevronRight 
+  User, Star, MessageSquare, Users, LogOut, Bell, ChevronRight, Shield 
 } from 'lucide-react';
 import MobileNav from './MobileNav';
 import MobileStatusBar from './MobileStatusBar';
@@ -45,6 +45,14 @@ export default function MobileProfile() {
       color: 'text-purple-500', 
       bg: 'bg-purple-50',
       path: '/mobile/members' 
+    },
+    { 
+      id: 'password', 
+      label: '修改密码', 
+      icon: Shield, 
+      color: 'text-gray-500', 
+      bg: 'bg-gray-50',
+      path: '/mobile/settings/password' 
     },
   ];
 

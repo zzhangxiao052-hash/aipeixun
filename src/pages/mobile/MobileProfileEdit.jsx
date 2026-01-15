@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Camera, Save, User, Shield, ChevronRight } from 'lucide-react';
+import { ChevronLeft, Camera, Save, User } from 'lucide-react';
 import MobileStatusBar from './MobileStatusBar';
 
 export default function MobileProfileEdit() {
@@ -123,19 +123,7 @@ export default function MobileProfileEdit() {
 
         </div>
 
-        {/* Security Settings */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <button 
-            onClick={() => navigate('/mobile/settings/password')}
-            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-gray-500" />
-              <span className="text-sm font-medium text-gray-900">修改密码</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
+
 
         <p className="text-xs text-center text-gray-400 px-4">
           部分信息可能需要审核后才会公开显示。
