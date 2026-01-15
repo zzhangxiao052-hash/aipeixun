@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import GlobalNavbar from './components/GlobalNavbar';
 import Dashboard from './pages/Dashboard';
 import TaskCenter from './pages/TaskCenter';
-import Workshop from './pages/Workshop';
+
 import Login from './pages/Login';
 import Footer from './components/Footer';
 import FeedbackSidebar from './components/FeedbackSidebar';
@@ -38,7 +38,7 @@ import MobileNotifications from './pages/mobile/MobileNotifications';
 import MobileSearch from './pages/mobile/MobileSearch';
 import MobileSearchResults from './pages/mobile/MobileSearchResults';
 import MobileFeedback from './pages/mobile/MobileFeedback';
-import MobileSettings from './pages/mobile/MobileSettings';
+
 import MobileCockpit from './pages/mobile/MobileCockpit';
 import MobileProfileEdit from './pages/mobile/MobileProfileEdit';
 import MobileChangePassword from './pages/mobile/MobileChangePassword';
@@ -59,7 +59,7 @@ function AppContent() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tasks" element={<TaskCenter />} />
-          <Route path="/workshop" element={<Workshop />} />
+
           <Route path="/profile" element={<Profile />} />
 
           <Route path="/courses" element={<RecommendedCourses />} />
@@ -91,7 +91,7 @@ function AppContent() {
           <Route path="/mobile/search" element={<MobileSearch />} />
           <Route path="/mobile/search-results" element={<MobileSearchResults />} />
           <Route path="/mobile/feedback" element={<MobileFeedback />} />
-          <Route path="/mobile/settings" element={<MobileSettings />} />
+
           <Route path="/mobile/cockpit" element={<MobileCockpit />} />
           <Route path="/mobile/members" element={<MobileMemberManage />} />
           <Route path="/mobile/profile/edit" element={<MobileProfileEdit />} />

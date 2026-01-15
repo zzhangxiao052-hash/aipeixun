@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { 
-  Bell, Settings, ChevronRight, 
-  User, Star, MessageSquare 
+  User, Star, MessageSquare, Users, LogOut, Bell, ChevronRight 
 } from 'lucide-react';
 import MobileNav from './MobileNav';
 import MobileStatusBar from './MobileStatusBar';
 
 export default function MobileProfile() {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/login');
+  };
 
   const menuItems = [
     { 
@@ -36,12 +39,12 @@ export default function MobileProfile() {
       path: '/mobile/feedback' 
     },
     { 
-      id: 'settings', 
-      label: '设置', 
-      icon: Settings, 
-      color: 'text-gray-500', 
-      bg: 'bg-gray-50',
-      path: '/mobile/settings' 
+      id: 'members', 
+      label: '成员管理', 
+      icon: Users, 
+      color: 'text-purple-500', 
+      bg: 'bg-purple-50',
+      path: '/mobile/members' 
     },
   ];
 
@@ -101,6 +104,16 @@ export default function MobileProfile() {
             </button>
           );
         })}
+      </div>
+
+      <div className="px-4 mt-6">
+        <button 
+          onClick={handleLogout}
+          className="w-full bg-white text-red-600 font-bold py-3.5 rounded-xl shadow-sm border border-gray-100 active:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-5 h-5" />
+          退出登录
+        </button>
       </div>
 
       <MobileNav />

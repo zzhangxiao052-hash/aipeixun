@@ -29,7 +29,7 @@ export const TASKS = [
       id: 201,
       title: 'DeepSeek 深度解析：国产大模型应用效能跃升'
     },
-    link: '/workshop', // Direct link to the workshop page
+
     progress: 0,
     total: 1
   },
