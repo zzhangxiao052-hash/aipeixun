@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, Clock, Flame, Trash2, ArrowLeft } from 'lucide-react';
 import MobileStatusBar from './MobileStatusBar';
+import { PRDAnnotationWrapper } from '../../components/PRDAnnotation';
 
 export default function MobileSearch() {
   const navigate = useNavigate();
@@ -144,33 +145,74 @@ export default function MobileSearch() {
             )}
 
             {/* Hot Search */}
-            <div className="px-4 py-2">
-              <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
-                <Flame className="w-4 h-4 text-red-500 fill-current" />
-                热门搜索
-              </h3>
-              <div className="space-y-4">
-                {hotSearches.map((item, index) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => handleSearch(item.title)}
-                    className="flex items-center gap-3 active:bg-gray-50 -mx-4 px-4 py-1 cursor-pointer"
-                  >
-                    <span className={`
-                      w-5 text-center text-sm font-bold italic
-                      ${index === 0 ? 'text-red-500' : ''}
-                      ${index === 1 ? 'text-orange-500' : ''}
-                      ${index === 2 ? 'text-yellow-500' : ''}
-                      ${index > 2 ? 'text-gray-400' : ''}
-                    `}>
-                      {index + 1}
-                    </span>
-                    <span className="flex-1 text-sm text-gray-700">{item.title}</span>
-                    <span className="text-xs text-gray-400">{item.hot}</span>
-                  </div>
-                ))}
+            <PRDAnnotationWrapper
+              annotations={[
+                {
+                  title: '📋 PRD v2.1 - 展示数量',
+                  content: '默认展示前 8 条热门搜索词',
+                  position: 'top-right',
+                  arrowDirection: 'left',
+                  color: 'blue',
+                  offsetX: -10,
+                  offsetY: 10
+                },
+                {
+                  title: '📋 PRD v2.1 - 排名标识',
+                  content: '前3名：彩色数字\n  1-红色 2-橙色 3-黄色\n第4-8名：灰色数字',
+                  position: 'top-left',
+                  arrowDirection: 'down',
+                  color: 'orange',
+                  offsetX: 10,
+                  offsetY: 60
+                },
+                {
+                  title: '📋 PRD v2.1 - 热度数值',
+                  content: '≥10万：显示"w"单位（如98.2w）\n1-10万：不显示数值\n<1万：显示具体数字\n\n更新频率：每小时一次',
+                  position: 'top-right',
+                  arrowDirection: 'left',
+                  color: 'red',
+                  offsetX: -10,
+                  offsetY: 100
+                },
+                {
+                  title: '📋 PRD v2.1 - 排序规则',
+                  content: '按近7天搜索次数降序排列\n热度值 = 近7天该关键词的搜索次数\n\n兜底策略：初期可调整为近30天或累计',
+                  position: 'bottom-left',
+                  arrowDirection: 'up',
+                  color: 'green',
+                  offsetX: 10,
+                  offsetY: -10
+                }
+              ]}
+            >
+              <div className="px-4 py-2">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1">
+                  <Flame className="w-4 h-4 text-red-500 fill-current" />
+                  热门搜索
+                </h3>
+                <div className="space-y-4">
+                  {hotSearches.map((item, index) => (
+                    <div 
+                      key={item.id}
+                      onClick={() => handleSearch(item.title)}
+                      className="flex items-center gap-3 active:bg-gray-50 -mx-4 px-4 py-1 cursor-pointer"
+                    >
+                      <span className={`
+                        w-5 text-center text-sm font-bold italic
+                        ${index === 0 ? 'text-red-500' : ''}
+                        ${index === 1 ? 'text-orange-500' : ''}
+                        ${index === 2 ? 'text-yellow-500' : ''}
+                        ${index > 2 ? 'text-gray-400' : ''}
+                      `}>
+                        {index + 1}
+                      </span>
+                      <span className="flex-1 text-sm text-gray-700">{item.title}</span>
+                      <span className="text-xs text-gray-400">{item.hot}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </PRDAnnotationWrapper>
           </>
         )}
       </div>
